@@ -1,0 +1,40 @@
+{
+    "name": "koa-fluent-validation",
+    "version": "1.0.0",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "license": "MIT",
+    "scripts": {
+        "prepublish": "tsc && jest",
+        "build": "tsc",
+        "test": "jest",
+        "dev": "concurrently \"tsc --watch\" \"jest --watch\""
+    },
+    "jest": {
+        "transform": {
+            ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+        },
+        "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js"
+        ]
+    },
+    "devDependencies": {
+        "@types/jest": "^20.0.4",
+        "concurrently": "^3.5.0",
+        "jest": "^20.0.4",
+        "ts-jest": "^20.0.7",
+        "typescript": "2.4"
+    },
+    "dependencies": {
+        "@rossipedia/fluent-validators": "^0.0.3",
+        "@types/koa": "^2.0.39",
+        "@types/koa-bodyparser": "^3.0.23",
+        "@types/lodash.set": "^4.3.2",
+        "@types/validator": "^6.2.1",
+        "lodash.set": "^4.3.2",
+        "validator": "^8.0.0"
+    }
+}
