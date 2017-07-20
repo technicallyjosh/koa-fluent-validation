@@ -7,7 +7,7 @@
     "scripts": {
         "prepublish": "tsc && jest",
         "build": "tsc",
-        "test": "jest",
+        "test": "jest --coverage",
         "dev": "concurrently \"tsc --watch\" \"jest --watch\""
     },
     "jest": {
@@ -19,7 +19,12 @@
             "ts",
             "tsx",
             "js"
-        ]
+        ],
+        "coveragePathIgnorePatterns": [
+            "/dist/",
+            "/node_modules/"
+        ],
+        "mapCoverage": true
     },
     "devDependencies": {
         "@types/jest": "^20.0.4",

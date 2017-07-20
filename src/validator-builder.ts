@@ -11,7 +11,7 @@ export interface IValidator {
 }
 
 export interface IValidators {
-    validate(value: any, label: string): string | undefined;
+    validate(value: any, label?: string): string | undefined;
     required(): IValidators;
     string(): IValidators;
     email(options?: ValidatorJS.IsEmailOptions): IValidators;
@@ -167,9 +167,7 @@ export class ValidatorBuilder implements IValidators {
     }
 }
 
-export function validatorBuilder(): IValidators {
-    return new ValidatorBuilder();
-}
+export const validatorBuilder = (): IValidators => new ValidatorBuilder();
 
 export function addCustom(name: string, fn: ValidatorFn) {
     ValidatorBuilder.defineCustom(name, fn);

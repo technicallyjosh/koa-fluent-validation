@@ -7,7 +7,15 @@ import set = require('lodash.set');
 declare module 'koa' {
     interface Context {
         validateBody(validations: IValidations, hooks?: IHooks): void;
+        validateParams(validations: IValidations, hooks?: IHooks): void;
+        validateQuery(validations: IValidations, hooks?: IHooks): void;
         validationErrors: { [key: string]: string };
+        params: any;
+        query: any;
+    }
+
+    interface Request {
+        body: any;
     }
 }
 
@@ -70,21 +78,45 @@ function runHooks(ctx: Koa.Context, filters: IFiltrations, parent: any = ctx.req
     }
 }
 
-function validateBody(this: Koa.Context, options: IValidations, hooks?: IHooks) {
+function validate(ctx: Koa.Context, options: IValidations, hooks?: IHooks) {
     if (hooks !== undefined && hooks !== null && hooks.before !== undefined && hooks.before !== null) {
-        runHooks(this, hooks.before);
+        runHooks(ctx, hooks.before);
     }
 
-    runValidators(this, options);
+    runValidators(ctx, options);
 
     if (hooks !== undefined && hooks !== null && hooks.after !== undefined && hooks.after !== null) {
-        runHooks(this, hooks.after);
+        runHooks(ctx, hooks.after);
     }
+}
+
+function validateBody(this: Koa.Context, options: IValidations, hooks?: IHooks) {
+    if (this.request.body === undefined) {
+        throw new Error('ctx.request.body is missing. You must use a body parser.');
+    }
+
+    validate(this, options, hooks);
+}
+
+function validateParams(this: Koa.Context, options: IValidations, hooks?: IHooks) {
+    if (this.params === undefined) {
+        throw new Error('ctx.params is missing. Try using a router.');
+    }
+
+    validate(this, options, hooks);
+}
+
+function validateQuery(this: Koa.Context, options: IValidations, hooks?: IHooks) {
+    // no need to check as it's built into koa
+
+    validate(this, options, hooks);
 }
 
 export function middleware() {
     return async (ctx: Koa.Context, next: () => Promise<any>) => {
         ctx.validateBody = validateBody;
+        ctx.validateParams = validateParams;
+        ctx.validateQuery = validateQuery;
         ctx.validationErrors = {};
 
         await next();
