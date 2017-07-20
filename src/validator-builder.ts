@@ -62,7 +62,7 @@ export class ValidatorBuilder implements IValidators {
         const validator: IValidator = { fn, message, args };
 
         if (this.v) {
-            return new ValidatorBuilder(new CompositeValidator(validator, this.v));
+            return new ValidatorBuilder(new CompositeValidator(this.v, validator));
         }
 
         this.v = validator;
