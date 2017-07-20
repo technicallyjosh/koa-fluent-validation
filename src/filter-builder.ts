@@ -15,7 +15,7 @@ export interface IFilters {
     toLower(): IFilters;
     padStart(len: number, fill?: string): IFilters;
     padEnd(len: number, fill?: string): IFilters;
-    normalizeEmail(options: ValidatorJS.NormalizeEmailOptions): IFilters;
+    normalizeEmail(options?: ValidatorJS.NormalizeEmailOptions): IFilters;
     toInt(radix?: number): IFilters;
     toBoolean(): IFilters;
 }
