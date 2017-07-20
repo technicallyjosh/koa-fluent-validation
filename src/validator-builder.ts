@@ -143,7 +143,7 @@ export class ValidatorBuilder implements IValidators {
     }
 
     base64(): IValidators {
-        return this.addValidator((value: any) => typeof value === 'string' && v.isBase64(value), 'is an invalid base64 string.');
+        return this.addValidator((value: any) => (!exists(value) ? true : typeof value === 'string' && v.isBase64(value)), 'is an invalid base64 string.');
     }
 
     boolean(): IValidators {

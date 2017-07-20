@@ -4,6 +4,18 @@ import { exists } from '../src/helpers';
 import { ValidatorBuilder, validatorBuilder, addCustom } from '../src/validator-builder';
 import { IValidators } from '../src/validator-builder';
 
+function checkUndefined(v: IValidators, values: any[]) {
+    values.forEach(value => expect(v.validate(value)).toBeUndefined());
+}
+
+function checkMessage(v: IValidators, values: any[], msg: string) {
+    values.forEach(value => expect(v.validate(value)).toBe(msg));
+}
+
+function errorTypes(v: IValidators, types: any[], msg: string) {
+    types.forEach(type => expect(v.validate(type)).toBe(msg));
+}
+
 describe('validator()', () => {
     test('should be a function', () => {
         expect(typeof validation).toBe('function');
@@ -65,10 +77,11 @@ describe('ValidatorBuilder', () => {
     test('required() should validate', () => {
         const x = v().required();
         const msg = 'Value is required.';
+        const types = ['', undefined, null];
 
-        expect(x.validate(undefined)).toBe(msg);
-        expect(x.validate(null)).toBe(msg);
         expect(x.validate('test')).toBeUndefined();
+
+        types.forEach(type => expect(x.validate(type)).toBe(msg));
     });
 
     test('string() should validate', () => {
@@ -80,7 +93,7 @@ describe('ValidatorBuilder', () => {
         expect(x.validate(undefined)).toBeUndefined();
         expect(x.validate(null)).toBeUndefined();
 
-        eTypes.forEach(type => expect(x.validate(type)).toBe(msg));
+        errorTypes(x, eTypes, msg);
     });
 
     test('email() should validate', () => {
@@ -92,21 +105,140 @@ describe('ValidatorBuilder', () => {
         expect(x.validate(undefined)).toBeUndefined();
         expect(x.validate(null)).toBeUndefined();
 
-        eTypes.forEach(type => expect(x.validate(type)).toBe(msg));
+        errorTypes(x, eTypes, msg);
     });
 
     test('uuid() should validate', () => {
         const x = v().uuid();
         const msg = 'Value is an invalid v4 UUID.';
-        const eTypes = [{}, [], 1, '', '134'];
-        const v1 = 'be5fa2a8-6cfa-11e7-907b-a6006ad3dba0';
+        const eTypes = [{}, [], 1, '', '134', 'be5fa2a8-6cfa-11e7-907b-a6006ad3dba0'];
 
         expect(x.validate('4a368fb7-6084-41b0-bbd3-460f29301b3c')).toBeUndefined();
         expect(x.validate(undefined)).toBeUndefined();
         expect(x.validate(null)).toBeUndefined();
 
-        eTypes.forEach(type => expect(x.validate(type)).toBe(msg));
+        errorTypes(x, eTypes, msg);
+    });
 
-        expect(x.validate(v1)).toBe(msg);
+    test('number() should validate', () => {
+        const x = v().number();
+        const msg = 'Value is an invalid number.';
+        const eTypes = [{}, [], '', '1'];
+
+        expect(x.validate(1)).toBeUndefined();
+        expect(x.validate(undefined)).toBeUndefined();
+        expect(x.validate(null)).toBeUndefined();
+
+        errorTypes(x, eTypes, msg);
+    });
+
+    test('float() should validate', () => {
+        const x = v().float();
+
+        const msg = 'Value is an invalid float.';
+        const eTypes = [{}, [], ''];
+
+        expect(x.validate(1)).toBeUndefined();
+        expect(x.validate(1.1)).toBeUndefined();
+        expect(x.validate(undefined)).toBeUndefined();
+        expect(x.validate(null)).toBeUndefined();
+
+        errorTypes(x, eTypes, msg);
+    });
+
+    test('currency() should validate', () => {
+        const x = v().currency();
+        const msg = 'Value is an invalid currency.';
+        const eTypes = [{}, [], '', 'a', 1.1, '1.1'];
+
+        expect(x.validate(1)).toBeUndefined();
+        expect(x.validate('1.10')).toBeUndefined();
+        expect(x.validate(undefined)).toBeUndefined();
+        expect(x.validate(null)).toBeUndefined();
+
+        errorTypes(x, eTypes, msg);
+    });
+
+    test('decimal() should validate', () => {
+        const x = v().decimal();
+        const msg = 'Value is an invalid decimal.';
+        const eTypes = [{}, [], '', 'a', '1'];
+
+        expect(x.validate(1)).toBeUndefined();
+        expect(x.validate(undefined)).toBeUndefined();
+        expect(x.validate(null)).toBeUndefined();
+
+        errorTypes(x, eTypes, msg);
+    });
+
+    test('int() should validate', () => {
+        const x = v().int();
+        const msg = 'Value is an invalid int.';
+        const eTypes = [{}, [], '', 'a'];
+
+        checkUndefined(x, [1, undefined, null]);
+
+        errorTypes(x, eTypes, msg);
+    });
+
+    test('length() should validate', () => {
+        const min1 = v().length();
+        const min2 = v().length(2);
+        const max1 = v().length(1, 1);
+        const max2 = v().length(1, 2);
+        const msg1 = 'Value is an invalid string or does not have a min length of 1.';
+        const msg2 = 'Value is an invalid string or does not have a min length of 2.';
+        const msg3 = 'Value is an invalid string or does not have a min length of 1 and a max length of 1.';
+        const msg4 = 'Value is an invalid string or does not have a min length of 1 and a max length of 2.';
+
+        checkUndefined(min1, ['a', undefined, null]);
+        expect(min1.validate('')).toBe(msg1);
+
+        checkUndefined(min2, ['ab', undefined, null]);
+        checkMessage(min2, ['', 'a'], msg2);
+
+        checkUndefined(max1, ['a', undefined, null]);
+        expect(max1.validate('aa')).toBe(msg3);
+
+        checkUndefined(max2, ['a', undefined, null]);
+        expect(max2.validate('aaa')).toBe(msg4);
+    });
+
+    test('base64() should validate', () => {
+        const x = v().base64();
+
+        checkUndefined(x, ['dGVzdA==', undefined, null]);
+
+        checkMessage(x, ['', '123'], 'Value is an invalid base64 string.');
+    });
+
+    test('boolean() should validate', () => {
+        const x = v().boolean();
+
+        checkUndefined(x, [true, false, 'true', 'false', 1, 0, undefined, null]);
+
+        checkMessage(x, ['', 'asdf'], 'Value is an invalid boolean.');
+    });
+
+    test('in() should validate', () => {
+        const x = v().in(['test']);
+
+        checkUndefined(x, ['test', undefined, null]);
+
+        checkMessage(x, [1, {}, [], true, false, 1.1, 'asdf'], 'Value is not a value of the following: test.');
+    });
+
+    test('url() should validate', () => {
+        const x = v().url();
+
+        checkUndefined(x, ['stackoverflow.com', undefined, null]);
+        checkMessage(x, ['test', 1, {}, []], 'Value is an invalid URL.');
+    });
+
+    test('contains() should validate', () => {
+        const x = v().contains('2');
+
+        checkUndefined(x, ['2', undefined, null]);
+        checkMessage(x, ['1', 2, 'testing'], "Value does not contain '2'.");
     });
 });
