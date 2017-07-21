@@ -2,18 +2,18 @@ import * as Koa from 'koa';
 import { validation, v, f } from '../src';
 import { exists } from '../src/helpers';
 import { ValidatorBuilder, validatorBuilder, addCustom } from '../src/validator-builder';
-import { IValidators } from '../src/validator-builder';
+import { IValidators, IValidatorContext } from '../src/validator-builder';
 
 function checkUndefined(v: IValidators, values: any[]) {
-    values.forEach(value => expect(v.validate(value)).toBeUndefined());
+    values.forEach(value => expect(v.validate({ value })).toBeUndefined());
 }
 
 function checkMessage(v: IValidators, values: any[], msg: string) {
-    values.forEach(value => expect(v.validate(value)).toBe(msg));
+    values.forEach(value => expect(v.validate({ value })).toBe(msg));
 }
 
 function errorTypes(v: IValidators, types: any[], msg: string) {
-    types.forEach(type => expect(v.validate(type)).toBe(msg));
+    types.forEach(type => expect(v.validate({ value: type })).toBe(msg));
 }
 
 describe('validator()', () => {
@@ -79,9 +79,39 @@ describe('ValidatorBuilder', () => {
         const msg = 'Value is required.';
         const types = ['', undefined, null];
 
-        expect(x.validate('test')).toBeUndefined();
+        checkUndefined(x, [{ value: 'test' }]);
 
-        types.forEach(type => expect(x.validate(type)).toBe(msg));
+        types.forEach(type => expect(x.validate({ value: type })).toBe(msg));
+    });
+
+    test('requiredIf() should validate', () => {
+        const x = v().requiredIf('username', value => value === 'testuser');
+        const ctx: IValidatorContext = {
+            obj: { username: 'testuser' },
+            path: 'username',
+            value: 'test'
+        };
+
+        expect(x.validate(ctx)).toBeUndefined();
+
+        delete ctx.value;
+
+        expect(x.validate(ctx)).toBe('Value is required.');
+    });
+
+    test('requiredNotIf() should validate', () => {
+        const x = v().requiredNotIf('username', value => value === 'testuser');
+        const ctx: IValidatorContext = {
+            obj: { username: 'test' },
+            path: 'username',
+            value: 'test'
+        };
+
+        expect(x.validate(ctx)).toBeUndefined();
+
+        delete ctx.value;
+
+        expect(x.validate(ctx)).toBe('Value is required.');
     });
 
     test('string() should validate', () => {
@@ -89,9 +119,7 @@ describe('ValidatorBuilder', () => {
         const msg = 'Value is an invalid string.';
         const eTypes = [{}, [], 1];
 
-        expect(x.validate('')).toBeUndefined();
-        expect(x.validate(undefined)).toBeUndefined();
-        expect(x.validate(null)).toBeUndefined();
+        checkUndefined(x, ['', undefined, null]);
 
         errorTypes(x, eTypes, msg);
     });
@@ -101,9 +129,7 @@ describe('ValidatorBuilder', () => {
         const msg = 'Value is an invalid email.';
         const eTypes = [{}, [], 1, '', 't@'];
 
-        expect(x.validate('test@test.com')).toBeUndefined();
-        expect(x.validate(undefined)).toBeUndefined();
-        expect(x.validate(null)).toBeUndefined();
+        checkUndefined(x, ['test@test.com', undefined, null]);
 
         errorTypes(x, eTypes, msg);
     });
@@ -113,9 +139,7 @@ describe('ValidatorBuilder', () => {
         const msg = 'Value is an invalid v4 UUID.';
         const eTypes = [{}, [], 1, '', '134', 'be5fa2a8-6cfa-11e7-907b-a6006ad3dba0'];
 
-        expect(x.validate('4a368fb7-6084-41b0-bbd3-460f29301b3c')).toBeUndefined();
-        expect(x.validate(undefined)).toBeUndefined();
-        expect(x.validate(null)).toBeUndefined();
+        checkUndefined(x, ['4a368fb7-6084-41b0-bbd3-460f29301b3c', undefined, null]);
 
         errorTypes(x, eTypes, msg);
     });
@@ -125,9 +149,7 @@ describe('ValidatorBuilder', () => {
         const msg = 'Value is an invalid number.';
         const eTypes = [{}, [], '', '1'];
 
-        expect(x.validate(1)).toBeUndefined();
-        expect(x.validate(undefined)).toBeUndefined();
-        expect(x.validate(null)).toBeUndefined();
+        checkUndefined(x, [1, undefined, null]);
 
         errorTypes(x, eTypes, msg);
     });
@@ -138,10 +160,7 @@ describe('ValidatorBuilder', () => {
         const msg = 'Value is an invalid float.';
         const eTypes = [{}, [], ''];
 
-        expect(x.validate(1)).toBeUndefined();
-        expect(x.validate(1.1)).toBeUndefined();
-        expect(x.validate(undefined)).toBeUndefined();
-        expect(x.validate(null)).toBeUndefined();
+        checkUndefined(x, [1, 1.1, undefined, null]);
 
         errorTypes(x, eTypes, msg);
     });
@@ -151,10 +170,7 @@ describe('ValidatorBuilder', () => {
         const msg = 'Value is an invalid currency.';
         const eTypes = [{}, [], '', 'a', 1.1, '1.1'];
 
-        expect(x.validate(1)).toBeUndefined();
-        expect(x.validate('1.10')).toBeUndefined();
-        expect(x.validate(undefined)).toBeUndefined();
-        expect(x.validate(null)).toBeUndefined();
+        checkUndefined(x, [1, '1.10', undefined, null]);
 
         errorTypes(x, eTypes, msg);
     });
@@ -164,9 +180,7 @@ describe('ValidatorBuilder', () => {
         const msg = 'Value is an invalid decimal.';
         const eTypes = [{}, [], '', 'a', '1'];
 
-        expect(x.validate(1)).toBeUndefined();
-        expect(x.validate(undefined)).toBeUndefined();
-        expect(x.validate(null)).toBeUndefined();
+        checkUndefined(x, [1, undefined, null]);
 
         errorTypes(x, eTypes, msg);
     });
@@ -192,23 +206,22 @@ describe('ValidatorBuilder', () => {
         const msg4 = 'Value is an invalid string or does not have a min length of 1 and a max length of 2.';
 
         checkUndefined(min1, ['a', undefined, null]);
-        expect(min1.validate('')).toBe(msg1);
+        expect(min1.validate({ value: '' })).toBe(msg1);
 
         checkUndefined(min2, ['ab', undefined, null]);
         checkMessage(min2, ['', 'a'], msg2);
 
         checkUndefined(max1, ['a', undefined, null]);
-        expect(max1.validate('aa')).toBe(msg3);
+        expect(max1.validate({ value: 'aa' })).toBe(msg3);
 
         checkUndefined(max2, ['a', undefined, null]);
-        expect(max2.validate('aaa')).toBe(msg4);
+        expect(max2.validate({ value: 'aaa' })).toBe(msg4);
     });
 
     test('base64() should validate', () => {
         const x = v().base64();
 
         checkUndefined(x, ['dGVzdA==', undefined, null]);
-
         checkMessage(x, ['', '123'], 'Value is an invalid base64 string.');
     });
 
@@ -216,7 +229,6 @@ describe('ValidatorBuilder', () => {
         const x = v().boolean();
 
         checkUndefined(x, [true, false, 'true', 'false', 1, 0, undefined, null]);
-
         checkMessage(x, ['', 'asdf'], 'Value is an invalid boolean.');
     });
 
@@ -224,7 +236,6 @@ describe('ValidatorBuilder', () => {
         const x = v().in(['test']);
 
         checkUndefined(x, ['test', undefined, null]);
-
         checkMessage(x, [1, {}, [], true, false, 1.1, 'asdf'], 'Value is not a value of the following: test.');
     });
 

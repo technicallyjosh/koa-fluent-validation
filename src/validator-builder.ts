@@ -1,8 +1,10 @@
 import * as Koa from 'koa';
 import * as v from 'validator';
 import { exists } from './helpers';
+import _get = require('lodash.get');
 
 export type ValidatorFn = (value: any, ...args: any[]) => boolean;
+export type TPred = (value: any) => boolean;
 
 export interface IValidator {
     fn: ValidatorFn;
@@ -10,9 +12,17 @@ export interface IValidator {
     args: any[];
 }
 
+export interface IValidatorContext {
+    obj: any;
+    path: string;
+    value: any;
+}
+
 export interface IValidators {
     validate(value: any, label?: string): string | undefined;
     required(): IValidators;
+    requiredIf(path: string, pred: TPred): IValidators;
+    requiredNotIf(path: string, pred: TPred): IValidators;
     string(): IValidators;
     email(options?: ValidatorJS.IsEmailOptions): IValidators;
     uuid(version?: number): IValidators;
@@ -29,8 +39,12 @@ export interface IValidators {
     contains(seed: string): IValidators;
 }
 
-function applyValidator(v: IValidator, value: string): boolean {
+function applyValidator(v: IValidator, value: any): boolean {
     return v.fn(value, ...v.args);
+}
+
+function required(value: any) {
+    return exists(value) && value.toString().trim().length > 0;
 }
 
 class CompositeValidator implements IValidator {
@@ -90,44 +104,80 @@ export class ValidatorBuilder implements IValidators {
     }
 
     required(): IValidators {
-        return this.addValidator((value: any) => exists(value) && value.toString().trim().length > 0, 'is required.');
+        return this.addValidator(({ value }: IValidatorContext) => {
+            return required(value);
+        }, 'is required.');
+    }
+
+    requiredIf(path: string, pred: TPred): IValidators {
+        return this.addValidator(
+            (ctx: IValidatorContext, path: string, pred: TPred) => pred(_get(ctx.obj, path)) && required(ctx.value),
+            'is required.',
+            path,
+            pred
+        );
+    }
+
+    requiredNotIf(path: string, pred: TPred): IValidators {
+        return this.requiredIf(path, (value: any) => !pred(value));
     }
 
     string(): IValidators {
-        return this.addValidator((value: any) => (!exists(value) ? true : typeof value === 'string'), 'is an invalid string.');
+        return this.addValidator(({ value }: IValidatorContext) => (!exists(value) ? true : typeof value === 'string'), 'is an invalid string.');
     }
 
     email(options?: ValidatorJS.IsEmailOptions): IValidators {
-        return this.addValidator((value: any, options: ValidatorJS.IsEmailOptions) => (!exists(value) ? true : v.isEmail(value.toString(), options)), 'is an invalid email.', options);
+        return this.addValidator(
+            ({ value }: IValidatorContext, options: ValidatorJS.IsEmailOptions) => (!exists(value) ? true : v.isEmail(value.toString(), options)),
+            'is an invalid email.',
+            options
+        );
     }
 
     uuid(version: number = 4): IValidators {
-        return this.addValidator((value: any, version: number) => (!exists(value) ? true : v.isUUID(value.toString(), version)), `is an invalid v${version} UUID.`, version);
+        return this.addValidator(
+            ({ value }: IValidatorContext, version: number) => (!exists(value) ? true : v.isUUID(value.toString(), version)),
+            `is an invalid v${version} UUID.`,
+            version
+        );
     }
 
     number(): IValidators {
-        return this.addValidator((value: any) => (!exists(value) ? true : typeof value === 'number' && v.isNumeric(value.toString())), 'is an invalid number.');
+        return this.addValidator(
+            ({ value }: IValidatorContext) => (!exists(value) ? true : typeof value === 'number' && v.isNumeric(value.toString())),
+            'is an invalid number.'
+        );
     }
 
     float(options?: ValidatorJS.IsFloatOptions): IValidators {
         return this.addValidator(
-            (value: any, options?: ValidatorJS.IsFloatOptions) => (!exists(value) ? true : typeof value === 'number' && v.isFloat(value.toString(), options)),
+            ({ value }: IValidatorContext, options?: ValidatorJS.IsFloatOptions) =>
+                !exists(value) ? true : typeof value === 'number' && v.isFloat(value.toString(), options),
             'is an invalid float.',
             options
         );
     }
 
     currency(options?: ValidatorJS.IsCurrencyOptions): IValidators {
-        return this.addValidator((value: any, options?: ValidatorJS.IsCurrencyOptions) => (!exists(value) ? true : v.isCurrency(value.toString(), options)), 'is an invalid currency.', options);
+        return this.addValidator(
+            ({ value }: IValidatorContext, options?: ValidatorJS.IsCurrencyOptions) =>
+                !exists(value) ? true : v.isCurrency(value.toString(), options),
+            'is an invalid currency.',
+            options
+        );
     }
 
     decimal(): IValidators {
-        return this.addValidator((value: number) => (!exists(value) ? true : typeof value === 'number' && v.isDecimal(value.toString())), 'is an invalid decimal.');
+        return this.addValidator(
+            ({ value }: IValidatorContext) => (!exists(value) ? true : typeof value === 'number' && v.isDecimal(value.toString())),
+            'is an invalid decimal.'
+        );
     }
 
     int(options?: ValidatorJS.IsIntOptions): IValidators {
         return this.addValidator(
-            (value: number, options?: ValidatorJS.IsIntOptions) => (!exists(value) ? true : typeof value === 'number' && v.isInt(value.toString(), options)),
+            ({ value }: IValidatorContext, options?: ValidatorJS.IsIntOptions) =>
+                !exists(value) ? true : typeof value === 'number' && v.isInt(value.toString(), options),
             'is an invalid int.',
             options
         );
@@ -135,7 +185,8 @@ export class ValidatorBuilder implements IValidators {
 
     length(min: number = 1, max?: number): IValidators {
         return this.addValidator(
-            (value: string, min: number, max?: number) => (!exists(value) ? true : typeof value === 'string' && v.isLength(value, min, max)),
+            ({ value }: IValidatorContext, min: number, max?: number) =>
+                !exists(value) ? true : typeof value === 'string' && v.isLength(value, min, max),
             `is an invalid string or does not have a min length of ${min}${max ? ` and a max length of ${max}` : ''}.`,
             min,
             max
@@ -143,27 +194,39 @@ export class ValidatorBuilder implements IValidators {
     }
 
     base64(): IValidators {
-        return this.addValidator((value: any) => (!exists(value) ? true : typeof value === 'string' && v.isBase64(value)), 'is an invalid base64 string.');
+        return this.addValidator(
+            ({ value }: IValidatorContext) => (!exists(value) ? true : typeof value === 'string' && v.isBase64(value)),
+            'is an invalid base64 string.'
+        );
     }
 
     boolean(): IValidators {
-        return this.addValidator((value: any) => (!exists(value) ? true : v.isBoolean(value.toString())), 'is an invalid boolean.');
+        return this.addValidator(({ value }: IValidatorContext) => (!exists(value) ? true : v.isBoolean(value.toString())), 'is an invalid boolean.');
     }
 
     in(values: any[]): IValidators {
         return this.addValidator(
-            (value: any, values: any[]) => (!exists(value) ? true : typeof value === 'string' && v.isIn(value, values)),
+            ({ value }: IValidatorContext, values: any[]) => (!exists(value) ? true : typeof value === 'string' && v.isIn(value, values)),
             `is not a value of the following: ${values.join(',')}.`,
             values
         );
     }
 
     url(options?: ValidatorJS.IsURLOptions): IValidators {
-        return this.addValidator((value: any, options?: ValidatorJS.IsURLOptions) => (!exists(value) ? true : typeof value === 'string' && v.isURL(value, options)), 'is an invalid URL.', options);
+        return this.addValidator(
+            ({ value }: IValidatorContext, options?: ValidatorJS.IsURLOptions) =>
+                !exists(value) ? true : typeof value === 'string' && v.isURL(value, options),
+            'is an invalid URL.',
+            options
+        );
     }
 
     contains(seed: string): IValidators {
-        return this.addValidator((value: any, seed: string) => (!exists(value) ? true : typeof value === 'string' && v.contains(value, seed)), `does not contain '${seed}'.`, seed);
+        return this.addValidator(
+            ({ value }: IValidatorContext, seed: string) => (!exists(value) ? true : typeof value === 'string' && v.contains(value, seed)),
+            `does not contain '${seed}'.`,
+            seed
+        );
     }
 }
 

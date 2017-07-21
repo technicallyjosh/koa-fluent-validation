@@ -8,6 +8,7 @@
         "prepublish": "tsc && jest",
         "build": "tsc",
         "test": "jest --coverage",
+        "test-debugger": "node --inspect-brk ./node_modules/.bin/jest --runInBand",
         "dev": "concurrently \"tsc --watch\" \"jest --watch --coverage\""
     },
     "jest": {
@@ -21,6 +22,7 @@
     },
     "devDependencies": {
         "@types/jest": "^20.0.4",
+        "@types/lodash.get": "^4.4.2",
         "concurrently": "^3.5.0",
         "jest": "^20.0.4",
         "ts-jest": "^20.0.7",
@@ -32,6 +34,7 @@
         "@types/koa-bodyparser": "^3.0.23",
         "@types/lodash.set": "^4.3.2",
         "@types/validator": "^6.2.1",
+        "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
         "validator": "^8.0.0"
     }

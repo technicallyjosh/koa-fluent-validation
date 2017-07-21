@@ -81,6 +81,12 @@
     "@types/koa-compose" "*"
     "@types/node" "*"
 
+"@types/lodash.get@^4.4.2":
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/@types/lodash.get/-/lodash.get-4.4.2.tgz#24d03d099d9df65656b724c38c616147ff7e2b13"
+  dependencies:
+    "@types/lodash" "*"
+
 "@types/lodash.set@^4.3.2":
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/@types/lodash.set/-/lodash.set-4.3.2.tgz#ad68cf88cb7bc12c0ada134bd4b805188953fe7b"
@@ -1489,6 +1495,10 @@ locate-path@^2.0.0:
   dependencies:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
+
+lodash.get@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
 
 lodash.set@^4.3.2:
   version "4.3.2"

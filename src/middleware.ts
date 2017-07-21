@@ -32,14 +32,14 @@ export interface IHooks {
     after?: IFiltrations;
 }
 
-function runValidators(ctx: Koa.Context, validators: IValidations, parent: any = ctx.request.body, parentKey?: string) {
+function runValidators(ctx: Koa.Context, validators: IValidations, parent: any, parentKey?: string) {
     for (let key in validators) {
         const builder = validators[key];
         const value = parent && parent[key];
         const path = parentKey ? `${parentKey}.${key}` : key;
 
         if (builder instanceof ValidatorBuilder) {
-            const error = builder.validate(value);
+            const error = builder.validate({ obj: ctx.request.body, path, value });
 
             if (error) {
                 ctx.validationErrors[path] = error;
@@ -56,7 +56,7 @@ function runValidators(ctx: Koa.Context, validators: IValidations, parent: any =
     }
 }
 
-function runHooks(ctx: Koa.Context, filters: IFiltrations, parent: any = ctx.request.body, parentKey?: string) {
+function runHooks(ctx: Koa.Context, filters: IFiltrations, parent: any, parentKey?: string) {
     for (let key in filters) {
         const builder = filters[key];
         const value = parent && parent[key];
@@ -78,15 +78,15 @@ function runHooks(ctx: Koa.Context, filters: IFiltrations, parent: any = ctx.req
     }
 }
 
-function validate(ctx: Koa.Context, options: IValidations, hooks?: IHooks) {
+function validate(ctx: Koa.Context, options: IValidations, obj: any, hooks?: IHooks) {
     if (hooks !== undefined && hooks !== null && hooks.before !== undefined && hooks.before !== null) {
-        runHooks(ctx, hooks.before);
+        runHooks(ctx, obj, hooks.before);
     }
 
-    runValidators(ctx, options);
+    runValidators(ctx, obj, options);
 
     if (hooks !== undefined && hooks !== null && hooks.after !== undefined && hooks.after !== null) {
-        runHooks(ctx, hooks.after);
+        runHooks(ctx, obj, hooks.after);
     }
 }
 
@@ -95,7 +95,7 @@ function validateBody(this: Koa.Context, options: IValidations, hooks?: IHooks) 
         throw new Error('ctx.request.body is missing. You must use a body parser.');
     }
 
-    validate(this, options, hooks);
+    validate(this, options, this.request.body, hooks);
 }
 
 function validateParams(this: Koa.Context, options: IValidations, hooks?: IHooks) {
@@ -103,13 +103,11 @@ function validateParams(this: Koa.Context, options: IValidations, hooks?: IHooks
         throw new Error('ctx.params is missing. Try using a router.');
     }
 
-    validate(this, options, hooks);
+    validate(this, options, this.params, hooks);
 }
 
 function validateQuery(this: Koa.Context, options: IValidations, hooks?: IHooks) {
-    // no need to check as it's built into koa
-
-    validate(this, options, hooks);
+    validate(this, options, this.query, hooks);
 }
 
 export function middleware() {

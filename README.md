@@ -7,15 +7,13 @@ Fluent, functional, and extendable validation for Koa 2 body, params, and query.
 **This only works for Koa 2 and Node v7.6+**
 
 ## Usage
-
 This was built with TypeScript with ECMA 2017 in mind as the target output. You will get type definitions when using with TypeScript and of course you can use vanilla JavaScript.
 
 Map files are included so you can debug if you are using VS Code or similar for TypeScript debugging.
 
 For a more common implementation, all examples will be in JavaScript.
 
-### Sample App
-
+### Simple App Example
 ```js
 const Koa = require('koa');
 const bodyparser = require('koa-bodyparser');
@@ -47,8 +45,8 @@ app.use(async (ctx, next) => {
     }
 
     ctx.validateBody({
-        username: v().required().string(),
-        password: v().required().string()
+        firstName: v().required().string(),
+        lastName: v().required().string()
     });
 
     // it passed! do something here
@@ -56,3 +54,155 @@ app.use(async (ctx, next) => {
 
 app.listen(8080);
 ```
+## Context Functions
+Each context function is added to the Koa 2 context and is available in routes and middleware for any request.
+
+**A bodyparser is required to use `validateBody()`**. If you aren't using one, I suggest using [koa-bodyparser](https://github.com/koajs/bodyparser).
+
+**A router is required to use `validateParams()`**. If you aren't using one, I suggest using [koa-router](https://github.com/alexmingoia/koa-router).
+
+#### `validateBody(validatorSetup: Object, filterSetup: Object)`
+Validates the incoming body based on the structure and validators given.
+
+```js
+ctx.validateBody({
+    firstName: v().required()
+});
+```
+
+#### `validateParams(validatorSetup: Object, filterSetup: Object)`
+Validates the incoming parameters based on the structure and validators given.
+
+```js
+ctx.validateParams({
+    firstName: v().required()
+});
+```
+
+#### `validateQuery(validatorSetup: Object, filterSetup: Object)`
+Validates the incoming query string values based on the structure and validators given.
+
+```js
+ctx.validateQuery({
+    firstName: v().required()
+});
+```
+
+## Validators
+Validators are methods that validate the incoming value structure from the body, params, or query *before* or *after* the validators are called.
+
+### Example
+```js
+const { v } = require('koa-fluent-validation');
+
+app.use(async ctx => {
+    if (ctx.method !== 'POST') {
+        ctx.throw(404);
+        return;
+    }
+
+    ctx.validateBody({
+        firstName: v().required().string(),
+        lastName: v().required().string()
+    });
+});
+```
+
+### API
+
+#### `v()`
+##### ValidatorBuilder
+
+The beginning of any validation chain. It's a function that returns an instance of a Validator Builder. Each function that is called on this instance returns the same type.
+
+```js
+// v is a function ready to give you a builder to work off of.
+const { v } = require('koa-fluent-validation');
+```
+
+#### `required()`
+
+#### `requiredIf(path: string, predicate: Function)`
+Requires the value if the predicate returns true. Predicate requires a value to check against.
+
+```js
+// lastName is required if the value of firstName is 'John'
+ctx.validateBody({
+    firstName: v().string(),
+    lastName: v().requiredIf('firstName', (value) => value === 'John')
+});
+```
+
+#### `requiredNotIf(path: string, predicate: Function)`
+The opposite of `requiredIf()`.
+
+#### `string()`
+
+#### `email([options: Object])`
+See [validator](https://github.com/chriso/validator.js) for options.
+
+#### `uuid([version: number])`
+*version* defaults to 4.
+
+#### `number()`
+
+#### `float([options: Object])`
+See [validator](https://github.com/chriso/validator.js) for options.
+
+#### `currency([options])`
+See [validator](https://github.com/chriso/validator.js) for options.
+
+#### `int([options])`
+See [validator](https://github.com/chriso/validator.js) for options.
+
+#### `length(min: number[, max: number])
+
+#### `base64()`
+
+#### `boolean()`
+
+#### `in(values: [])`
+```js
+// if firstName exists in body, it must be 'John', 'Sally', or 'Tim'
+ctx.validateBody({
+    firstName: v().in(['John', 'Sally', 'Tim'])
+})
+```
+
+#### `url([options: Object])`
+See [validator](https://github.com/chriso/validator.js) for options.
+
+#### `contains(seed: string)`
+
+<!-- ## Filters
+Filters are methods that manipulate the incoming value structure from the body, params, or query *before* or *after* the validators are called.
+
+### Example
+
+```js
+// requires
+const { v, f } = require('koa-fluent-validation');
+
+app.use(async ctx => {
+    if (ctx.method !== 'POST') {
+        ctx.throw(404);
+        return;
+    }
+
+    ctx.validateBody({
+        firstName: v().required().string(),
+        lastName: v().required().string()
+    }, {
+        before: {
+            firstName: f().trim(),
+            lastName: f().trim()
+        },
+        after: {
+            firstName: f().upper(),
+            lastName: f().upper()
+        }
+    });
+});
+```
+
+### API -->
