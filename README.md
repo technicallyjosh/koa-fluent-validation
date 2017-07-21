@@ -57,9 +57,9 @@ app.listen(8080);
 ## Context Functions
 Each context function is added to the Koa 2 context and is available in routes and middleware for any request.
 
-**A bodyparser is required to use `validateBody()`**. If you aren't using one, I suggest using [koa-bodyparser](https://github.com/koajs/bodyparser).
+* A bodyparser is **required** to use `validateBody()`. If you aren't using one, I suggest using [koa-bodyparser](https://github.com/koajs/bodyparser).
 
-**A router is required to use `validateParams()`**. If you aren't using one, I suggest using [koa-router](https://github.com/alexmingoia/koa-router).
+* A router is **required** to use `validateParams()`. If you aren't using one, I suggest using [koa-router](https://github.com/alexmingoia/koa-router).
 
 #### `validateBody(validatorSetup: Object, filterSetup: Object)`
 Validates the incoming body based on the structure and validators given.
