@@ -155,7 +155,7 @@ See [validator](https://github.com/chriso/validator.js) for options.
 #### `int([options])`
 See [validator](https://github.com/chriso/validator.js) for options.
 
-#### `length(min: number[, max: number])
+#### `length(min: number[, max: number])`
 
 #### `base64()`
 
