@@ -7,7 +7,7 @@ Fluent, functional, and extendable validation for Koa 2 body, params, and query.
 **This only works for Koa 2 and Node v7.6+**
 
 ## Usage
-This is built with TypeScript with ECMA 2017 in mind as the target output. You will get type definitions when using with TypeScript and of course you can use vanilla JavaScript.
+This is built with TypeScript targeting ECMA 2017 as the output. You will get type definitions when using with TypeScript and of course you can use vanilla JavaScript.
 
 Map files are included so you can debug if you are using VS Code or similar for TypeScript debugging.
 
