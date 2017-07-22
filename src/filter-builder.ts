@@ -86,15 +86,22 @@ export class FilterBuilder implements IFilters {
     }
 
     normalizeEmail(options?: ValidatorJS.NormalizeEmailOptions) {
-        return this.addFilter((value: any, options?: ValidatorJS.NormalizeEmailOptions) => (typeof value === 'string' && v.normalizeEmail(value, options)) || value, options);
+        return this.addFilter(
+            (value: any, options?: ValidatorJS.NormalizeEmailOptions) => (typeof value === 'string' && v.normalizeEmail(value, options)) || value,
+            options
+        );
     }
 
     toInt(radix?: number) {
         return this.addFilter((value: any, radix?: number) => (typeof value === 'string' ? v.toInt(value, radix) : value), radix);
     }
 
-    toBoolean() {
-        return this.addFilter((value: any) => (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? v.toBoolean(value.toString()) : value));
+    toBoolean(strict?: boolean) {
+        return this.addFilter(
+            (value: any, strict?: boolean) =>
+                typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? v.toBoolean(value.toString(), strict) : value,
+            strict
+        );
     }
 }
 
