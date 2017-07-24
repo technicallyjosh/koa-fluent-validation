@@ -6,9 +6,9 @@ import set = require('lodash.set');
 
 declare module 'koa' {
     interface Context {
-        validateBody(validations: IValidations, hooks?: IHooks): void;
-        validateParams(validations: IValidations, hooks?: IHooks): void;
-        validateQuery(validations: IValidations, hooks?: IHooks): void;
+        validateBody(setup: IValidatorObject, hooks?: IHooks): void;
+        validateParams(setup: IValidatorObject, hooks?: IHooks): void;
+        validateQuery(setup: IValidatorObject, hooks?: IHooks): void;
         validationErrors: { [key: string]: string };
         params: any;
         query: any;
@@ -19,22 +19,22 @@ declare module 'koa' {
     }
 }
 
-export interface IValidations {
-    [key: string]: IValidators | IValidations;
+export interface IValidatorObject {
+    [key: string]: IValidators | IValidatorObject;
 }
 
-export interface IFiltrations {
-    [key: string]: IFilters | IFiltrations;
+export interface IFilterObject {
+    [key: string]: IFilters | IFilterObject;
 }
 
 export interface IHooks {
-    before?: IFiltrations;
-    after?: IFiltrations;
+    before?: IFilterObject;
+    after?: IFilterObject;
 }
 
-function runValidators(ctx: Koa.Context, validators: IValidations, parent: any, parentKey?: string) {
-    for (let key in validators) {
-        const builder = validators[key];
+function runValidators(ctx: Koa.Context, obj: IValidatorObject, parent: any, parentKey?: string) {
+    for (let key in obj) {
+        const builder = obj[key];
         const value = parent && parent[key];
         const path = parentKey ? `${parentKey}.${key}` : key;
 
@@ -48,7 +48,7 @@ function runValidators(ctx: Koa.Context, validators: IValidations, parent: any, 
             continue;
         }
 
-        runValidators(ctx, builder as IValidations, value, path);
+        runValidators(ctx, builder as IValidatorObject, value, path);
     }
 
     if (Object.keys(ctx.validationErrors).length) {
@@ -56,9 +56,9 @@ function runValidators(ctx: Koa.Context, validators: IValidations, parent: any, 
     }
 }
 
-function runHooks(ctx: Koa.Context, filters: IFiltrations, parent: any, parentKey?: string) {
-    for (let key in filters) {
-        const builder = filters[key];
+function runHooks(ctx: Koa.Context, obj: IFilterObject, parent: any, parentKey?: string) {
+    for (let key in obj) {
+        const builder = obj[key];
         const value = parent && parent[key];
         const path = parentKey ? `${parentKey}.${key}` : key;
 
@@ -74,40 +74,40 @@ function runHooks(ctx: Koa.Context, filters: IFiltrations, parent: any, parentKe
             continue;
         }
 
-        runHooks(ctx, builder as IFiltrations, value, path);
+        runHooks(ctx, builder as IFilterObject, value, path);
     }
 }
 
-function validate(ctx: Koa.Context, options: IValidations, obj: any, hooks?: IHooks) {
+function validate(ctx: Koa.Context, setup: IValidatorObject, obj: any, hooks?: IHooks) {
     if (hooks !== undefined && hooks !== null && hooks.before !== undefined && hooks.before !== null) {
-        runHooks(ctx, obj, hooks.before);
+        runHooks(ctx, hooks.before, obj);
     }
 
-    runValidators(ctx, obj, options);
+    runValidators(ctx, setup, obj);
 
     if (hooks !== undefined && hooks !== null && hooks.after !== undefined && hooks.after !== null) {
-        runHooks(ctx, obj, hooks.after);
+        runHooks(ctx, hooks.after, obj);
     }
 }
 
-function validateBody(this: Koa.Context, options: IValidations, hooks?: IHooks) {
+function validateBody(this: Koa.Context, setup: IValidatorObject, hooks?: IHooks) {
     if (this.request.body === undefined) {
         throw new Error('ctx.request.body is missing. You must use a body parser.');
     }
 
-    validate(this, options, this.request.body, hooks);
+    validate(this, setup, this.request.body, hooks);
 }
 
-function validateParams(this: Koa.Context, options: IValidations, hooks?: IHooks) {
+function validateParams(this: Koa.Context, setup: IValidatorObject, hooks?: IHooks) {
     if (this.params === undefined) {
         throw new Error('ctx.params is missing. Try using a router.');
     }
 
-    validate(this, options, this.params, hooks);
+    validate(this, setup, this.params, hooks);
 }
 
-function validateQuery(this: Koa.Context, options: IValidations, hooks?: IHooks) {
-    validate(this, options, this.query, hooks);
+function validateQuery(this: Koa.Context, setup: IValidatorObject, hooks?: IHooks) {
+    validate(this, setup, this.query, hooks);
 }
 
 export function middleware() {
