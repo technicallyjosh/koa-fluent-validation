@@ -32,14 +32,14 @@ export interface IHooks {
     after?: IFilterObject;
 }
 
-function runValidators(ctx: Koa.Context, obj: IValidatorObject, parent: any, parentKey?: string) {
+function runValidators(ctx: Koa.Context, obj: IValidatorObject, root: any, parent: any, parentKey?: string) {
     for (let key in obj) {
         const builder = obj[key];
         const value = parent && parent[key];
         const path = parentKey ? `${parentKey}.${key}` : key;
 
         if (builder instanceof ValidatorBuilder) {
-            const error = builder.validate({ obj: ctx.request.body, path, value });
+            const error = builder.validate({ obj: root, path, value });
 
             if (error) {
                 ctx.validationErrors[path] = error;
@@ -48,7 +48,7 @@ function runValidators(ctx: Koa.Context, obj: IValidatorObject, parent: any, par
             continue;
         }
 
-        runValidators(ctx, builder as IValidatorObject, value, path);
+        runValidators(ctx, builder as IValidatorObject, root, value, path);
     }
 
     if (Object.keys(ctx.validationErrors).length) {
@@ -56,7 +56,7 @@ function runValidators(ctx: Koa.Context, obj: IValidatorObject, parent: any, par
     }
 }
 
-function runHooks(ctx: Koa.Context, obj: IFilterObject, parent: any, parentKey?: string) {
+function runHooks(ctx: Koa.Context, obj: IFilterObject, root: any, parent: any, parentKey?: string) {
     for (let key in obj) {
         const builder = obj[key];
         const value = parent && parent[key];
@@ -69,24 +69,24 @@ function runHooks(ctx: Koa.Context, obj: IFilterObject, parent: any, parentKey?:
         if (builder instanceof FilterBuilder) {
             const newValue = builder.filter(value);
 
-            set(ctx.request.body, path, newValue);
+            set(root, path, newValue);
 
             continue;
         }
 
-        runHooks(ctx, builder as IFilterObject, value, path);
+        runHooks(ctx, builder as IFilterObject, root, value, path);
     }
 }
 
 function validate(ctx: Koa.Context, setup: IValidatorObject, obj: any, hooks?: IHooks) {
     if (hooks !== undefined && hooks !== null && hooks.before !== undefined && hooks.before !== null) {
-        runHooks(ctx, hooks.before, obj);
+        runHooks(ctx, hooks.before, obj, obj);
     }
 
-    runValidators(ctx, setup, obj);
+    runValidators(ctx, setup, obj, obj);
 
     if (hooks !== undefined && hooks !== null && hooks.after !== undefined && hooks.after !== null) {
-        runHooks(ctx, hooks.after, obj);
+        runHooks(ctx, hooks.after, obj, obj);
     }
 }
 

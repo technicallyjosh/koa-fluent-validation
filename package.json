@@ -17,7 +17,8 @@
         "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
         "moduleFileExtensions": ["ts", "tsx", "js"],
         "coveragePathIgnorePatterns": ["/dist/", "/node_modules/"],
-        "mapCoverage": true
+        "mapCoverage": true,
+        "verbose": false
     },
     "devDependencies": {
         "@types/jest": "^20.0.4",

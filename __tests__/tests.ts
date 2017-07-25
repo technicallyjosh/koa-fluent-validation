@@ -146,12 +146,15 @@ describe('ValidatorBuilder', () => {
 
     test('number() should validate', () => {
         const x = v().number();
+        const y = v().number(true);
         const msg = 'Value is an invalid number.';
-        const eTypes = [{}, [], '', '1'];
+        const eTypes = [{}, [], '', 'a'];
 
-        checkUndefined(x, [1, undefined, null]);
+        checkUndefined(x, [1, '1', undefined, null]);
 
         errorTypes(x, eTypes, msg);
+
+        checkMessage(y, ['1', '1.1'], msg);
     });
 
     test('float() should validate', () => {
@@ -177,12 +180,15 @@ describe('ValidatorBuilder', () => {
 
     test('decimal() should validate', () => {
         const x = v().decimal();
+        const y = v().decimal(true);
         const msg = 'Value is an invalid decimal.';
-        const eTypes = [{}, [], '', 'a', '1'];
+        const eTypes = [{}, [], '', 'a'];
 
         checkUndefined(x, [1, undefined, null]);
 
         errorTypes(x, eTypes, msg);
+
+        checkMessage(y, ['1'], msg);
     });
 
     test('int() should validate', () => {
@@ -251,5 +257,29 @@ describe('ValidatorBuilder', () => {
 
         checkUndefined(x, ['2', undefined, null]);
         checkMessage(x, ['1', 2, 'testing'], "Value does not contain '2'.");
+    });
+
+    test('min() should validate', () => {
+        const x = v().min(1);
+        const y = v().min(1, true);
+        const msg = 'Value is an invalid number or is lower than 1.';
+
+        checkUndefined(x, [1, undefined, null]);
+        checkMessage(x, [0], msg);
+
+        checkUndefined(y, [1, undefined, null]);
+        checkMessage(y, ['1', 0], msg);
+    });
+
+    test('max() should validate', () => {
+        const x = v().max(1);
+        const y = v().max(1, true);
+        const msg = 'Value is an invalid number or is higher than 1.';
+
+        checkUndefined(x, [1, -1, undefined, null]);
+        checkMessage(x, [2], msg);
+
+        checkUndefined(y, [1, -1, undefined, null]);
+        checkMessage(y, ['2', 2], msg);
     });
 });

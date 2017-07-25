@@ -26,17 +26,19 @@ export interface IValidators {
     string(): IValidators;
     email(options?: ValidatorJS.IsEmailOptions): IValidators;
     uuid(version?: number): IValidators;
-    number(): IValidators;
-    float(options?: ValidatorJS.IsFloatOptions): IValidators;
+    number(strict?: boolean): IValidators;
+    float(strict?: boolean, options?: ValidatorJS.IsFloatOptions): IValidators;
     currency(options?: ValidatorJS.IsCurrencyOptions): IValidators;
-    decimal(): IValidators;
-    int(options?: ValidatorJS.IsIntOptions): IValidators;
+    decimal(strict?: boolean): IValidators;
+    int(strict?: boolean, options?: ValidatorJS.IsIntOptions): IValidators;
     length(min?: number, max?: number): IValidators;
     base64(): IValidators;
     boolean(): IValidators;
     in(values: any[]): IValidators;
     url(options?: ValidatorJS.IsURLOptions): IValidators;
     contains(seed: string): IValidators;
+    min(num: number, strict?: boolean): IValidators;
+    max(num: number, strict?: boolean): IValidators;
 }
 
 function applyValidator(v: IValidator, value: any): boolean {
@@ -45,6 +47,18 @@ function applyValidator(v: IValidator, value: any): boolean {
 
 function required(value: any) {
     return exists(value) && value.toString().trim().length > 0;
+}
+
+function checkStrict(strict: boolean, type: string, value: any) {
+    if (!exists(value)) {
+        return true;
+    }
+
+    if (strict && typeof value !== 'number') {
+        return false;
+    }
+
+    return true;
 }
 
 class CompositeValidator implements IValidator {
@@ -142,18 +156,39 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    number(): IValidators {
+    number(strict: boolean = false): IValidators {
         return this.addValidator(
-            ({ value }: IValidatorContext) => (!exists(value) ? true : typeof value === 'number' && v.isNumeric(value.toString())),
-            'is an invalid number.'
+            ({ value }: IValidatorContext, strict: boolean) => {
+                if (!exists(value)) {
+                    return true;
+                }
+
+                if (strict && typeof value !== 'number') {
+                    return false;
+                }
+
+                return v.isNumeric(value.toString());
+            },
+            'is an invalid number.',
+            strict
         );
     }
 
-    float(options?: ValidatorJS.IsFloatOptions): IValidators {
+    float(strict: boolean = false, options?: ValidatorJS.IsFloatOptions): IValidators {
         return this.addValidator(
-            ({ value }: IValidatorContext, options?: ValidatorJS.IsFloatOptions) =>
-                !exists(value) ? true : typeof value === 'number' && v.isFloat(value.toString(), options),
+            ({ value }: IValidatorContext, strict: boolean, options?: ValidatorJS.IsFloatOptions) => {
+                if (!exists(value)) {
+                    return true;
+                }
+
+                if (strict && typeof value !== 'number') {
+                    return false;
+                }
+
+                return v.isFloat(value.toString(), options);
+            },
             'is an invalid float.',
+            strict,
             options
         );
     }
@@ -167,18 +202,39 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    decimal(): IValidators {
+    decimal(strict: boolean = false): IValidators {
         return this.addValidator(
-            ({ value }: IValidatorContext) => (!exists(value) ? true : typeof value === 'number' && v.isDecimal(value.toString())),
-            'is an invalid decimal.'
+            ({ value }: IValidatorContext, strict: boolean) => {
+                if (!exists(value)) {
+                    return true;
+                }
+
+                if (strict && typeof value !== 'number') {
+                    return false;
+                }
+
+                return v.isDecimal(value.toString());
+            },
+            'is an invalid decimal.',
+            strict
         );
     }
 
-    int(options?: ValidatorJS.IsIntOptions): IValidators {
+    int(strict: boolean = false, options?: ValidatorJS.IsIntOptions): IValidators {
         return this.addValidator(
-            ({ value }: IValidatorContext, options?: ValidatorJS.IsIntOptions) =>
-                !exists(value) ? true : typeof value === 'number' && v.isInt(value.toString(), options),
+            ({ value }: IValidatorContext, strict: boolean, options?: ValidatorJS.IsIntOptions) => {
+                if (!exists(value)) {
+                    return true;
+                }
+
+                if (strict && typeof value !== 'number') {
+                    return false;
+                }
+
+                return v.isInt(value.toString(), options);
+            },
             'is an invalid int.',
+            strict,
             options
         );
     }
@@ -222,10 +278,60 @@ export class ValidatorBuilder implements IValidators {
     }
 
     contains(seed: string): IValidators {
+        if (typeof seed !== 'string') {
+            throw new Error(`${seed} is an invalid string.`);
+        }
+
         return this.addValidator(
             ({ value }: IValidatorContext, seed: string) => (!exists(value) ? true : typeof value === 'string' && v.contains(value, seed)),
             `does not contain '${seed}'.`,
             seed
+        );
+    }
+
+    min(num: number, strict: boolean = false): IValidators {
+        if (typeof num !== 'number') {
+            throw new Error(`${num} is an invalid number.`);
+        }
+
+        return this.addValidator(
+            ({ value }: IValidatorContext, num: number, strict: boolean) => {
+                if (!exists(value)) {
+                    return true;
+                }
+
+                if (strict && typeof value !== 'number') {
+                    return false;
+                }
+
+                return !isNaN(value) && parseFloat(value) >= num;
+            },
+            `is an invalid number or is lower than ${num}.`,
+            num,
+            strict
+        );
+    }
+
+    max(num: number, strict: boolean = false): IValidators {
+        if (typeof num !== 'number') {
+            throw new Error(`${num} is an invalid number.`);
+        }
+
+        return this.addValidator(
+            ({ value }: IValidatorContext, num: number, strict: boolean) => {
+                if (!exists(value)) {
+                    return true;
+                }
+
+                if (strict && typeof value !== 'number') {
+                    return false;
+                }
+
+                return !isNaN(value) && parseFloat(value) <= num;
+            },
+            `is an invalid number or is higher than ${num}.`,
+            num,
+            strict
         );
     }
 }
