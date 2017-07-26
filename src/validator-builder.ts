@@ -39,6 +39,7 @@ export interface IValidators {
     contains(seed: string): IValidators;
     min(num: number, strict?: boolean): IValidators;
     max(num: number, strict?: boolean): IValidators;
+    mobilePhone(locale?: ValidatorJS.MobilePhoneLocale): IValidators;
 }
 
 function applyValidator(v: IValidator, value: any): boolean {
@@ -332,6 +333,15 @@ export class ValidatorBuilder implements IValidators {
             `is an invalid number or is higher than ${num}.`,
             num,
             strict
+        );
+    }
+
+    mobilePhone(locale: ValidatorJS.MobilePhoneLocale = 'en-US'): IValidators {
+        return this.addValidator(
+            ({ value }: IValidatorContext, locale: ValidatorJS.MobilePhoneLocale) =>
+                !exists(value) ? true : v.isMobilePhone(value.toString(), locale),
+            `is an invalid phone number for ${locale}.`,
+            locale
         );
     }
 }

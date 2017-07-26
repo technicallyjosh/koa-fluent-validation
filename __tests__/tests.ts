@@ -282,4 +282,11 @@ describe('ValidatorBuilder', () => {
         checkUndefined(y, [1, -1, undefined, null]);
         checkMessage(y, ['2', 2], msg);
     });
+
+    test('mobilePhone() should validate', () => {
+        const x = v().mobilePhone();
+
+        checkUndefined(x, [8005551234, '8005551234', undefined, null]);
+        checkMessage(x, ['123', 123, '5551234'], 'Value is an invalid phone number for en-US.');
+    });
 });
