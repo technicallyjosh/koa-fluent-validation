@@ -7,3 +7,5 @@ coverage/
 .npmignore
 tsconfig.json
 yarn.lock
+
+*.log
