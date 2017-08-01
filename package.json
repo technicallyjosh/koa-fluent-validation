@@ -1,13 +1,17 @@
 {
     "name": "koa-fluent-validation",
     "version": "1.0.0",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "author": {
+        "name": "Josh Newman"
+    },
+    "homepage": "https://github.com/technicallyjosh/koa-fluent-validation",
     "license": "MIT",
     "scripts": {
         "prepublish": "yarn build && yarn test",
         "build": "tsc",
-        "test": "jest",
+        "test": "jest --coverage",
         "dev": "concurrently \"tsc --watch\" \"jest --watch --coverage\""
     },
     "jest": {
@@ -19,6 +23,9 @@
         "coveragePathIgnorePatterns": ["/dist/", "/node_modules/"],
         "mapCoverage": true,
         "verbose": false
+    },
+    "engines": {
+        "node": ">=7.6"
     },
     "devDependencies": {
         "@types/jest": "^20.0.4",
