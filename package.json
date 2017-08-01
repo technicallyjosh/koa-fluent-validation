@@ -7,6 +7,10 @@
         "name": "Josh Newman"
     },
     "homepage": "https://github.com/technicallyjosh/koa-fluent-validation",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/technicallyjosh/koa-fluent-validation"
+    },
     "license": "MIT",
     "scripts": {
         "prepublish": "yarn build && yarn test",
