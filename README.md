@@ -1,10 +1,15 @@
 # koa-fluent-validation
 
-**THIS IS NOT PUBLISHED YET AND IS A WORK IN PROGRESS**
-
 Fluent, functional, and extendable validation for Koa 2 body, params, and query. Built on [validator](https://github.com/chriso/validator.js/) for base validations and filters.
 
 **This only works for Koa 2 and Node v7.6+**
+
+## Installation
+```bash
+yarn add koa-fluent-validation
+# OR
+npm i koa-fluent-validation
+```
 
 ## Usage
 This is built with TypeScript targeting ECMA 2017 as the output. You will get type definitions when using with TypeScript and of course you can use vanilla JavaScript.
