@@ -1,5 +1,7 @@
 # koa-fluent-validation
 
+[![NPM version][npm-image]][npm-url]
+
 Fluent, functional, and extendable validation for Koa 2 body, params, and query. Built on [validator](https://github.com/chriso/validator.js/) for base validations and filters.
 
 **This only works for Koa 2 and Node v7.6+**
@@ -66,3 +68,6 @@ app.listen(8080);
 ## Documentation
 
 **For documentation see the [wiki](https://github.com/technicallyjosh/koa-fluent-validation/wiki)!**
+
+[npm-url]: https://npmjs.org/package/koa-fluent-validation
+[npm-image]: http://img.shields.io/npm/v/koa-fluent-validation.svg?style=plastic
