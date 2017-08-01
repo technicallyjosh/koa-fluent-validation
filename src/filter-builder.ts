@@ -7,7 +7,6 @@ export interface IFilter {
     args: any[];
 }
 
-// Default filters
 export interface IFilters {
     filter(value: any): any;
     trim(): IFilters;
@@ -64,7 +63,6 @@ export class FilterBuilder implements IFilters {
         });
     }
 
-    // Filters
     trim() {
         return this.addFilter((value: any) => (typeof value === 'string' ? value.trim() : value));
     }
