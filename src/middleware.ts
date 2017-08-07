@@ -4,21 +4,6 @@ import { IFilters, FilterBuilder } from './filter-builder';
 import * as v from 'validator';
 import set = require('lodash.set');
 
-declare module 'koa' {
-    interface Context {
-        validateBody(setup: IValidatorObject, hooks?: IHooks): void;
-        validateParams(setup: IValidatorObject, hooks?: IHooks): void;
-        validateQuery(setup: IValidatorObject, hooks?: IHooks): void;
-        validationErrors: { [key: string]: string };
-        params: any;
-        query: any;
-    }
-
-    interface Request {
-        body: any;
-    }
-}
-
 export interface IValidatorObject {
     [key: string]: IValidators | IValidatorObject;
 }
