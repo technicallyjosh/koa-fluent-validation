@@ -1,6 +1,6 @@
 {
     "name": "koa-fluent-validation",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "author": {
@@ -23,8 +23,15 @@
             ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
         },
         "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-        "moduleFileExtensions": ["ts", "tsx", "js"],
-        "coveragePathIgnorePatterns": ["/dist/", "/node_modules/"],
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js"
+        ],
+        "coveragePathIgnorePatterns": [
+            "/dist/",
+            "/node_modules/"
+        ],
         "mapCoverage": true,
         "verbose": false
     },
