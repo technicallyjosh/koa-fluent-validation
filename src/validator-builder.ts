@@ -3,7 +3,7 @@ import * as v from 'validator';
 import { exists } from './helpers';
 import _get = require('lodash.get');
 
-export type ValidatorFn = (value: any, ...args: any[]) => boolean;
+export type ValidatorFn = (context: IValidatorContext, ...args: any[]) => boolean;
 export type TPred = (value: any) => boolean;
 
 export interface IValidator {
@@ -110,10 +110,10 @@ export class ValidatorBuilder implements IValidators {
         }
     }
 
-    static defineCustom(name: string, fn: ValidatorFn) {
+    static defineCustom(name: string, fn: ValidatorFn, errorMessage: string) {
         Object.defineProperty(ValidatorBuilder.prototype, name, {
-            value: function(this: ValidatorBuilder, message: string = 'Invalid') {
-                return this.addValidator(fn, message);
+            value: function(this: ValidatorBuilder, ...args: any[]) {
+                return this.addValidator(fn, errorMessage, ...args);
             }
         });
     }
@@ -348,6 +348,6 @@ export class ValidatorBuilder implements IValidators {
 
 export const validatorBuilder = (): IValidators => new ValidatorBuilder();
 
-export function addCustom(name: string, fn: ValidatorFn) {
-    ValidatorBuilder.defineCustom(name, fn);
+export function addCustom(name: string, fn: ValidatorFn, errorMessage: string = 'Invalid') {
+    ValidatorBuilder.defineCustom(name, fn, errorMessage);
 }
