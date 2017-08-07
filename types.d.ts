@@ -34,7 +34,14 @@ declare module 'koa' {
 export declare function validation(): (ctx: Koa.Context, next: () => Promise<any>) => Promise<void>
 
 // export { validatorBuilder as v, addCustom as addCustomValidator, IValidators } from './validator-builder';
-declare type ValidatorFn = (value: any, ...args: any[]) => boolean;
+export interface IValidatorContext {
+    obj: any;
+    path: string;
+    value: any;
+}
+
+declare type ValidatorFn = (context: IValidatorContext, ...args: any[]) => boolean;
+
 declare type TPred = (value: any) => boolean;
 
 export interface IValidators {
@@ -62,7 +69,7 @@ export interface IValidators {
 }
 
 export declare const v: () => IValidators;
-export declare function addCustomValidator(name: string, fn: ValidatorFn): void
+export declare function addCustomValidator(name: string, fn: ValidatorFn, errorMessage?: string): void
 
 // export { filterBuilder as f, addCustom as addCustomFilter, IFilters } from './filter-builder';
 declare type FilterFn = (val: string, ...args: any[]) => any;
@@ -81,3 +88,6 @@ export interface IFilters {
 
 export declare function f(): IFilters
 export declare function addCustomFilter(name: string, fn: FilterFn): void
+
+// export { exists } from './helpers';
+export declare function exists(value: any): boolean
