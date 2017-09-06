@@ -126,7 +126,13 @@ export class ValidatorBuilder implements IValidators {
 
     requiredIf(path: string, pred: TPred): IValidators {
         return this.addValidator(
-            (ctx: IValidatorContext, path: string, pred: TPred) => pred(_get(ctx.obj, path)) && required(ctx.value),
+            (ctx: IValidatorContext, path: string, pred: TPred) => {
+                if (pred(_get(ctx.obj, path))) {
+                    return required(ctx.value);
+                }
+
+                return true;
+            },
             'is required.',
             path,
             pred

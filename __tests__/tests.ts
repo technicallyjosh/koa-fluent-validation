@@ -85,16 +85,16 @@ describe('ValidatorBuilder', () => {
     });
 
     test('requiredIf() should validate', () => {
-        const x = v().requiredIf('username', value => value === 'testuser');
+        const x = v().requiredIf('isRequired', value => value === true);
         const ctx: IValidatorContext = {
-            obj: { username: 'testuser' },
+            obj: { isRequired: false, username: null },
             path: 'username',
-            value: 'test'
+            value: null
         };
 
         expect(x.validate(ctx)).toBeUndefined();
 
-        delete ctx.value;
+        ctx.obj.isRequired = true;
 
         expect(x.validate(ctx)).toBe('Value is required.');
     });
