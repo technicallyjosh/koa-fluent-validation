@@ -1,7 +1,7 @@
 import * as Koa from 'koa';
+import * as v from 'validator';
 import { IValidators, ValidatorBuilder } from './validator-builder';
 import { IFilters, FilterBuilder } from './filter-builder';
-import * as v from 'validator';
 import set = require('lodash.set');
 
 export interface IValidatorObject {
@@ -36,8 +36,10 @@ function runValidators(ctx: Koa.Context, obj: IValidatorObject, root: any, paren
         runValidators(ctx, builder as IValidatorObject, root, value, path);
     }
 
-    if (Object.keys(ctx.validationErrors).length) {
-        ctx.throw(422);
+    if (!parentKey) {
+        if (Object.keys(ctx.validationErrors).length) {
+            ctx.throw(422);
+        }
     }
 }
 
