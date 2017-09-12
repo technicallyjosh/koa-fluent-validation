@@ -13,7 +13,6 @@
     },
     "license": "MIT",
     "scripts": {
-        "prepublish": "yarn build && yarn test",
         "build": "tsc",
         "test": "jest --coverage",
         "dev": "concurrently \"tsc --watch\" \"jest --watch --coverage\""
@@ -46,9 +45,9 @@
     "devDependencies": {
         "@types/jest": "^20.0.5",
         "concurrently": "^3.5.0",
-        "jest": "^20.0.4",
-        "ts-jest": "^20.0.7",
-        "typescript": "2.4"
+        "jest": "^21.0.2",
+        "ts-jest": "^21.0.0",
+        "typescript": "2.5.2"
     },
     "dependencies": {
         "@types/koa": "^2.0.39",
