@@ -289,4 +289,12 @@ describe('ValidatorBuilder', () => {
         checkUndefined(x, [8005551234, '8005551234', undefined, null]);
         checkMessage(x, ['123', 123, '5551234'], 'Value is an invalid phone number for en-US.');
     });
+
+    test('ipAddress() should validate', () => {
+        const x = v().ipAddress();
+        const msg = 'Value is an invalid ipaddress.';
+
+        checkUndefined(x, ['192.168.1.1', '255.255.255.255', undefined, null]);
+        checkMessage(x, ['123', '555.12.34', ''], msg); 
+    });
 });
