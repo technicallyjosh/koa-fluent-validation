@@ -66,6 +66,7 @@ export interface IValidators {
     min(num: number, strict?: boolean): IValidators;
     max(num: number, strict?: boolean): IValidators;
     mobilePhone(locale?: ValidatorJS.MobilePhoneLocale): IValidators;
+    ipAddress(version?: number): IValidators;    
 }
 
 export declare const v: () => IValidators;
