@@ -208,8 +208,10 @@ describe('ValidatorBuilder', () => {
         const max2 = v().length(1, 2);
         const msg1 = 'Value is an invalid string or does not have a min length of 1.';
         const msg2 = 'Value is an invalid string or does not have a min length of 2.';
-        const msg3 = 'Value is an invalid string or does not have a min length of 1 and a max length of 1.';
-        const msg4 = 'Value is an invalid string or does not have a min length of 1 and a max length of 2.';
+        const msg3 =
+            'Value is an invalid string or does not have a min length of 1 and a max length of 1.';
+        const msg4 =
+            'Value is an invalid string or does not have a min length of 1 and a max length of 2.';
 
         checkUndefined(min1, ['a', undefined, null]);
         expect(min1.validate({ value: '' })).toBe(msg1);
@@ -242,7 +244,11 @@ describe('ValidatorBuilder', () => {
         const x = v().in(['test']);
 
         checkUndefined(x, ['test', undefined, null]);
-        checkMessage(x, [1, {}, [], true, false, 1.1, 'asdf'], 'Value is not a value of the following: test.');
+        checkMessage(
+            x,
+            [1, {}, [], true, false, 1.1, 'asdf'],
+            'Value is not a value of the following: test.'
+        );
     });
 
     test('url() should validate', () => {
@@ -292,9 +298,9 @@ describe('ValidatorBuilder', () => {
 
     test('ipAddress() should validate', () => {
         const x = v().ipAddress();
-        const msg = 'Value is an invalid ipaddress.';
+        const msg = 'Value is an invalid v4 IP address.';
 
         checkUndefined(x, ['192.168.1.1', '255.255.255.255', undefined, null]);
-        checkMessage(x, ['123', '555.12.34', ''], msg); 
+        checkMessage(x, ['123', '555.12.34', ''], msg);
     });
 });
