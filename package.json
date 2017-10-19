@@ -13,29 +13,18 @@
     },
     "license": "MIT",
     "scripts": {
-        "build": "tsc",
-        "test": "jest --coverage",
+        "build": "rm -rf dist && tsc",
+        "test": "yarn build && jest --coverage",
         "dev": "concurrently \"tsc --watch\" \"jest --watch --coverage\""
     },
-    "files": [
-        "package.json",
-        "types.d.ts",
-        "dist"
-    ],
+    "files": ["package.json", "types.d.ts", "dist"],
     "jest": {
         "transform": {
             ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
         },
         "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-        "moduleFileExtensions": [
-            "ts",
-            "tsx",
-            "js"
-        ],
-        "coveragePathIgnorePatterns": [
-            "/dist/",
-            "/node_modules/"
-        ],
+        "moduleFileExtensions": ["ts", "tsx", "js"],
+        "coveragePathIgnorePatterns": ["/dist/", "/node_modules/"],
         "mapCoverage": true,
         "verbose": false
     },
