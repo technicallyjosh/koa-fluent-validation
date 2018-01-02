@@ -1,3 +1,4 @@
+import 'koa-bodyparser';
 import * as Koa from 'koa';
 import * as v from 'validator';
 import { IValidators, ValidatorBuilder } from './validator-builder';
@@ -17,7 +18,13 @@ export interface IHooks {
     after?: IFilterObject;
 }
 
-function runValidators(ctx: Koa.Context, obj: IValidatorObject, root: any, parent: any, parentKey?: string) {
+function runValidators(
+    ctx: Koa.Context,
+    obj: IValidatorObject,
+    root: any,
+    parent: any,
+    parentKey?: string
+) {
     for (let key in obj) {
         const builder = obj[key];
         const value = parent && parent[key];
@@ -43,7 +50,13 @@ function runValidators(ctx: Koa.Context, obj: IValidatorObject, root: any, paren
     }
 }
 
-function runHooks(ctx: Koa.Context, obj: IFilterObject, root: any, parent: any, parentKey?: string) {
+function runHooks(
+    ctx: Koa.Context,
+    obj: IFilterObject,
+    root: any,
+    parent: any,
+    parentKey?: string
+) {
     for (let key in obj) {
         const builder = obj[key];
         const value = parent && parent[key];
@@ -66,13 +79,23 @@ function runHooks(ctx: Koa.Context, obj: IFilterObject, root: any, parent: any, 
 }
 
 function validate(ctx: Koa.Context, setup: IValidatorObject, obj: any, hooks?: IHooks) {
-    if (hooks !== undefined && hooks !== null && hooks.before !== undefined && hooks.before !== null) {
+    if (
+        hooks !== undefined &&
+        hooks !== null &&
+        hooks.before !== undefined &&
+        hooks.before !== null
+    ) {
         runHooks(ctx, hooks.before, obj, obj);
     }
 
     runValidators(ctx, setup, obj, obj);
 
-    if (hooks !== undefined && hooks !== null && hooks.after !== undefined && hooks.after !== null) {
+    if (
+        hooks !== undefined &&
+        hooks !== null &&
+        hooks.after !== undefined &&
+        hooks.after !== null
+    ) {
         runHooks(ctx, hooks.after, obj, obj);
     }
 }
