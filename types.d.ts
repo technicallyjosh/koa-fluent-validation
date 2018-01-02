@@ -25,13 +25,9 @@ declare module 'koa' {
         params: any;
         query: any;
     }
-
-    interface Request {
-        body: any;
-    }
 }
 
-export declare function validation(): (ctx: Koa.Context, next: () => Promise<any>) => Promise<void>
+export declare function validation(): (ctx: Koa.Context, next: () => Promise<any>) => Promise<void>;
 
 // export { validatorBuilder as v, addCustom as addCustomValidator, IValidators } from './validator-builder';
 export interface IValidatorContext {
@@ -66,11 +62,15 @@ export interface IValidators {
     min(num: number, strict?: boolean): IValidators;
     max(num: number, strict?: boolean): IValidators;
     mobilePhone(locale?: ValidatorJS.MobilePhoneLocale): IValidators;
-    ipAddress(version?: number): IValidators;    
+    ipAddress(version?: number): IValidators;
 }
 
 export declare const v: () => IValidators;
-export declare function addCustomValidator(name: string, fn: ValidatorFn, errorMessage?: string): void
+export declare function addCustomValidator(
+    name: string,
+    fn: ValidatorFn,
+    errorMessage?: string
+): void;
 
 // export { filterBuilder as f, addCustom as addCustomFilter, IFilters } from './filter-builder';
 declare type FilterFn = (val: string, ...args: any[]) => any;
@@ -87,8 +87,8 @@ export interface IFilters {
     toBoolean(): IFilters;
 }
 
-export declare function f(): IFilters
-export declare function addCustomFilter(name: string, fn: FilterFn): void
+export declare function f(): IFilters;
+export declare function addCustomFilter(name: string, fn: FilterFn): void;
 
 // export { exists } from './helpers';
-export declare function exists(value: any): boolean
+export declare function exists(value: any): boolean;
