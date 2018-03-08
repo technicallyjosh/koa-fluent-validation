@@ -303,4 +303,18 @@ describe('ValidatorBuilder', () => {
         checkUndefined(x, ['192.168.1.1', '255.255.255.255', undefined, null]);
         checkMessage(x, ['123', '555.12.34', ''], msg);
     });
+
+    test('creditCard() should validate', () => {
+        const x = v().creditCard();
+        const msg = 'Value is an invalid credit card number.';
+
+        checkUndefined(x, [
+            '5105105105105100',
+            '4111111111111111',
+            '4012888888881881',
+            undefined,
+            null
+        ]);
+        checkMessage(x, ['123', ''], msg);
+    });
 });

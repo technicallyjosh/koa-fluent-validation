@@ -41,6 +41,7 @@ export interface IValidators {
     max(num: number, strict?: boolean): IValidators;
     mobilePhone(locale?: ValidatorJS.MobilePhoneLocale): IValidators;
     ipAddress(version?: number): IValidators;
+    creditCard(): IValidators;
 }
 
 function applyValidator(v: IValidator, value: any): boolean {
@@ -264,9 +265,9 @@ export class ValidatorBuilder implements IValidators {
         return this.addValidator(
             ({ value }: IValidatorContext, min: number, max?: number) =>
                 !exists(value) ? true : typeof value === 'string' && v.isLength(value, min, max),
-            `is an invalid string or does not have a min length of ${min}${max
-                ? ` and a max length of ${max}`
-                : ''}.`,
+            `is an invalid string or does not have a min length of ${min}${
+                max ? ` and a max length of ${max}` : ''
+            }.`,
             min,
             max
         );
@@ -380,6 +381,13 @@ export class ValidatorBuilder implements IValidators {
                 !exists(value) ? true : v.isIP(value, version),
             `is an invalid v${version || 4} IP address.`,
             version
+        );
+    }
+
+    creditCard(): IValidators {
+        return this.addValidator(
+            ({ value }: IValidatorContext) => (!exists(value) ? true : v.isCreditCard(value)),
+            'is an invalid credit card number.'
         );
     }
 }
