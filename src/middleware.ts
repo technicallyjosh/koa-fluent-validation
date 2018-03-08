@@ -1,4 +1,3 @@
-import 'koa-bodyparser';
 import * as Koa from 'koa';
 import * as v from 'validator';
 import { IValidators, ValidatorBuilder } from './validator-builder';

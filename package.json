@@ -36,22 +36,21 @@
             "/dist/",
             "/node_modules/"
         ],
-        "mapCoverage": true,
         "verbose": false
     },
     "engines": {
         "node": ">=7.6"
     },
     "devDependencies": {
-        "@types/jest": "^22.0.0",
+        "@types/jest": "^22.2.0",
         "concurrently": "^3.5.1",
-        "jest": "^22.0.4",
-        "ts-jest": "^22.0.0",
-        "typescript": "2.6.2"
+        "jest": "^22.4.2",
+        "ts-jest": "^22.4.1",
+        "typescript": "2.7.2"
     },
     "dependencies": {
         "@types/koa": "^2.0.43",
-        "@types/koa-bodyparser": "^3.0.26",
+        "@types/koa-bodyparser": "^4.2.0",
         "@types/lodash.get": "^4.4.2",
         "@types/lodash.set": "^4.3.2",
         "@types/validator": "^6.3.0",

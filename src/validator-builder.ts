@@ -64,7 +64,9 @@ function checkStrict(strict: boolean, type: string, value: any) {
 }
 
 class CompositeValidator implements IValidator {
-    constructor(private first: IValidator, private second: IValidator) {}
+    constructor(private first: IValidator, private second: IValidator) {
+        this.message = '';
+    }
 
     message: string;
 
