@@ -1,6 +1,7 @@
 /// <reference types="validator" />
 
 // export { middleware as validation } from './middleware';
+import 'koa-bodyparser';
 import * as Koa from 'koa';
 
 export interface IValidatorObject {
@@ -25,6 +26,10 @@ declare module 'koa' {
         params: any;
         query: any;
     }
+
+    // interface Request {
+    //     body: any;
+    // }
 }
 
 export declare function validation(): (ctx: Koa.Context, next: () => Promise<any>) => Promise<void>;
@@ -63,6 +68,7 @@ export interface IValidators {
     max(num: number, strict?: boolean): IValidators;
     mobilePhone(locale?: ValidatorJS.MobilePhoneLocale): IValidators;
     ipAddress(version?: number): IValidators;
+    creditCard(): IValidators;
 }
 
 export declare const v: () => IValidators;
