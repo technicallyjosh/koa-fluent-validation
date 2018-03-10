@@ -62,6 +62,12 @@ function runHooks(
         const path = parentKey ? `${parentKey}.${key}` : key;
 
         if (value === undefined) {
+            if (builder instanceof FilterBuilder) {
+                const newValue = builder.filter(value);
+
+                set(root, path, newValue);
+            }
+
             continue;
         }
 
