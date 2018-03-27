@@ -320,4 +320,12 @@ describe('ValidatorBuilder', () => {
         ]);
         checkMessage(x, ['123', ''], msg);
     });
+
+    test('test() should validate', () => {
+        const x = v().test(/^somevalue$/);
+
+        checkUndefined(x, [undefined, null, 'somevalue']);
+
+        checkMessage(x, ['some', 'value'], 'Value is invalid.');
+    });
 });

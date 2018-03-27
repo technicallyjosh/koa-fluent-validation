@@ -42,6 +42,7 @@ export interface IValidators {
     mobilePhone(locale?: ValidatorJS.MobilePhoneLocale): IValidators;
     ipAddress(version?: number): IValidators;
     creditCard(): IValidators;
+    test(regex: RegExp): IValidators;
 }
 
 function applyValidator(v: IValidator, value: any): boolean {
@@ -388,6 +389,14 @@ export class ValidatorBuilder implements IValidators {
         return this.addValidator(
             ({ value }: IValidatorContext) => (!exists(value) ? true : v.isCreditCard(value)),
             'is an invalid credit card number.'
+        );
+    }
+
+    test(regex: RegExp) {
+        return this.addValidator(
+            ({ value }: IValidatorContext) => (!exists(value) ? true : regex.test(value)),
+            'is invalid.',
+            regex
         );
     }
 }
