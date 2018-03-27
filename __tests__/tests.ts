@@ -38,6 +38,9 @@ describe('validator()', () => {
         );
 
         expect(typeof context.validateBody).toBe('function');
+        expect(typeof context.validateParams).toBe('function');
+        expect(typeof context.validateQuery).toBe('function');
+        expect(typeof context.validateHeaders).toBe('function');
         expect(context).toHaveProperty('validationErrors');
         expect(context.validationErrors).toBeUndefined;
     });

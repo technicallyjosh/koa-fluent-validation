@@ -22,14 +22,9 @@ declare module 'koa' {
         validateBody(setup: IValidatorObject, hooks?: IHooks): void;
         validateParams(setup: IValidatorObject, hooks?: IHooks): void;
         validateQuery(setup: IValidatorObject, hooks?: IHooks): void;
+        validateHeaders(setup: IValidatorObject, hooks?: IHooks): void;
         validationErrors: { [key: string]: string };
-        params: any;
-        query: any;
     }
-
-    // interface Request {
-    //     body: any;
-    // }
 }
 
 export declare function validation(): (ctx: Koa.Context, next: () => Promise<any>) => Promise<void>;

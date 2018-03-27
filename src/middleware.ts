@@ -125,11 +125,16 @@ function validateQuery(this: Koa.Context, setup: IValidatorObject, hooks?: IHook
     validate(this, setup, this.query, hooks);
 }
 
+function validateHeaders(this: Koa.Context, setup: IValidatorObject, hooks?: IHooks) {
+    validate(this, setup, this.headers, hooks);
+}
+
 export function middleware() {
     return async (ctx: Koa.Context, next: () => Promise<any>) => {
         ctx.validateBody = validateBody;
         ctx.validateParams = validateParams;
         ctx.validateQuery = validateQuery;
+        ctx.validateHeaders = validateHeaders;
         ctx.validationErrors = {};
 
         await next();
