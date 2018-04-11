@@ -50,7 +50,7 @@ function applyValidator(v: IValidator, value: any): boolean {
 }
 
 function required(value: any) {
-    return exists(value) && value.toString().trim().length > 0;
+    return exists(value) && (Array.isArray(value) || value.toString().trim().length > 0);
 }
 
 function checkStrict(strict: boolean, type: string, value: any) {

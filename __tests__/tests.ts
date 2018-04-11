@@ -82,7 +82,7 @@ describe('ValidatorBuilder', () => {
         const msg = 'Value is required.';
         const types = ['', undefined, null];
 
-        checkUndefined(x, [{ value: 'test' }]);
+        checkUndefined(x, ['test', 1, {}, { value: 'test' }, []]);
 
         types.forEach(type => expect(x.validate({ value: type })).toBe(msg));
     });
