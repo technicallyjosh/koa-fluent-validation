@@ -4,23 +4,23 @@
 
 Fluent, functional, and extendable validation for Koa 2 body, params, and query. Built on [validator](https://github.com/chriso/validator.js/) for base validations and filters.
 
-**This only works for Koa 2 and Node v7.6+**
-
 ## Installation
+
 ```bash
 yarn add koa-fluent-validation
 # OR
 npm i koa-fluent-validation
 ```
 
+## Requirements
+
+-   NodeJS >= 7.6
+-   **For validating parameters, [koa-router](https://github.com/alexmingoia/koa-router)'s implementation is used with `ctx.params`.**
+
 ## Usage
-This is built with TypeScript targeting ECMA 2017 as the output. You will get type definitions when using with TypeScript and of course you can use vanilla JavaScript.
-
-Map files are included so you can debug if you are using VS Code or similar for TypeScript debugging.
-
-For a more common implementation, all examples will be in JavaScript.
 
 ### Simple App Example
+
 ```js
 const Koa = require('koa');
 const bodyparser = require('koa-bodyparser');
@@ -51,13 +51,20 @@ app.use(async (ctx, next) => {
         return;
     }
 
-    ctx.validateBody({
-        firstName: v().required().string(),
-        lastName: v().required().string()
-    }, {
-        firstName: f().trim(),
-        lastName: f().trim()
-    });
+    ctx.validateBody(
+        {
+            firstName: v()
+                .required()
+                .string(),
+            lastName: v()
+                .required()
+                .string()
+        },
+        {
+            firstName: f().trim(),
+            lastName: f().trim()
+        }
+    );
 
     // your code here
 });
@@ -71,3 +78,8 @@ app.listen(8080);
 
 [npm-url]: https://npmjs.org/package/koa-fluent-validation
 [npm-image]: http://img.shields.io/npm/v/koa-fluent-validation.svg?style=plastic
+
+## TODO
+
+-   [] Filter Tests
+-   [] Automate build via Travis
