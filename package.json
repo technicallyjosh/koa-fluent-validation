@@ -2,7 +2,7 @@
     "name": "koa-fluent-validation",
     "version": "0.8.1",
     "main": "dist/index.js",
-    "types": "types.d.ts",
+    "types": "dist/index.d.ts",
     "author": {
         "name": "Josh Newman"
     },
@@ -15,47 +15,32 @@
     "scripts": {
         "build": "rm -rf dist && tsc",
         "test": "yarn build && jest --coverage",
-        "dev": "concurrently \"tsc --watch\" \"jest --watch --coverage\""
+        "watch": "concurrently \"tsc --watch\" \"jest --watch --coverage\""
     },
     "files": [
         "package.json",
         "types.d.ts",
         "dist"
     ],
-    "jest": {
-        "transform": {
-            ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-        },
-        "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-        "moduleFileExtensions": [
-            "ts",
-            "tsx",
-            "js"
-        ],
-        "coveragePathIgnorePatterns": [
-            "/dist/",
-            "/node_modules/"
-        ],
-        "verbose": false
-    },
     "engines": {
-        "node": ">=7.6"
+        "node": ">= 7.6"
     },
     "devDependencies": {
-        "@types/jest": "^22.2.0",
-        "concurrently": "^3.5.1",
-        "jest": "^22.4.2",
-        "ts-jest": "^22.4.1",
-        "typescript": "2.7.2"
+        "@types/jest": "^23.3.9",
+        "@types/koa-router": "^7.0.33",
+        "concurrently": "^4.0.1",
+        "jest": "^23.6.0",
+        "ts-jest": "^23.10.4",
+        "typescript": "3.1.6"
     },
     "dependencies": {
-        "@types/koa": "^2.0.44",
-        "@types/koa-bodyparser": "^4.2.0",
+        "@types/koa": "^2.0.46",
+        "@types/koa-bodyparser": "^5.0.1",
         "@types/lodash.get": "^4.4.2",
         "@types/lodash.set": "^4.3.2",
         "@types/validator": "^9.4.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
-        "validator": "^9.4.1"
+        "validator": "^10.9.0"
     }
 }
