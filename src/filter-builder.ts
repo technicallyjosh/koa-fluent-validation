@@ -1,4 +1,5 @@
 import v from 'validator';
+import CompositeFilter from './composite-filter';
 
 export type FilterFn = (val: string, ...args: any[]) => any;
 
@@ -19,21 +20,19 @@ export interface IFilters {
     toBoolean(): IFilters;
 }
 
-function applyFilter(f: IFilter, value: any): any {
+export function applyFilter(f: IFilter, value: any): any {
     return f.fn(value, ...f.args);
 }
 
-class CompositeFilter implements IFilter {
-    constructor(private f1: IFilter, private f2: IFilter) {}
-
-    fn(val: string) {
-        return applyFilter(this.f1, applyFilter(this.f2, val));
+export class FilterBuilder implements IFilters {
+    static defineCustom(name: string, fn: FilterFn) {
+        Object.defineProperty(FilterBuilder.prototype, name, {
+            value(this: FilterBuilder, ...args: any[]) {
+                return this.addFilter(fn, ...args);
+            },
+        });
     }
 
-    args = []; // Unused
-}
-
-export class FilterBuilder implements IFilters {
     constructor(private f?: IFilter) {}
 
     private addFilter(fn: FilterFn, ...args: any[]): IFilters {
@@ -53,14 +52,6 @@ export class FilterBuilder implements IFilters {
         }
 
         return applyFilter(this.f, value);
-    }
-
-    static defineCustom(name: string, fn: FilterFn) {
-        Object.defineProperty(FilterBuilder.prototype, name, {
-            value: function(this: FilterBuilder, ...args: any[]) {
-                return this.addFilter(fn, ...args);
-            },
-        });
     }
 
     trim() {

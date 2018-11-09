@@ -13,9 +13,11 @@
     },
     "license": "MIT",
     "scripts": {
-        "build": "rm -rf dist && tsc",
+        "lint": "tslint -p .",
+        "build": "yarn lint && rm -rf dist && tsc",
         "test": "yarn build && jest --coverage",
-        "watch": "concurrently \"tsc --watch\" \"jest --watch --coverage\""
+        "watch": "concurrently \"tsc --watch\" \"jest --watch --coverage\"",
+        "prepublish": "yarn test"
     },
     "files": [
         "package.json",
@@ -31,6 +33,7 @@
         "concurrently": "^4.0.1",
         "jest": "^23.6.0",
         "ts-jest": "^23.10.4",
+        "tslint": "^5.11.0",
         "typescript": "3.1.6"
     },
     "dependencies": {

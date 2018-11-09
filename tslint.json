@@ -1,0 +1,42 @@
+{
+    "defaultSeverity": "error",
+    "extends": ["tslint:recommended"],
+    "rules": {
+        "ordered-imports": false,
+        "quotemark": [true, "single", "avoid-escape"],
+        "trailing-comma": false,
+        "arrow-parens": false,
+        "object-literal-sort-keys": false,
+        "object-literal-key-quotes": false,
+        "interface-over-type-literal": false,
+        "no-shadowed-variable": false,
+        "radix": false,
+        "member-access": false,
+        "member-ordering": [
+            true,
+            {
+                "order": [
+                    "protected-static-field",
+                    "private-static-field",
+                    "public-static-field",
+
+                    "protected-static-method",
+                    "private-static-method",
+                    "public-static-method",
+
+                    "protected-instance-field",
+                    "private-instance-field",
+                    "public-instance-field",
+
+                    "protected-constructor",
+                    "private-constructor",
+                    "public-constructor",
+
+                    "protected-instance-method",
+                    "private-instance-method",
+                    "public-instance-method"
+                ]
+            }
+        ]
+    }
+}

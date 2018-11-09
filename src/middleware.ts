@@ -23,7 +23,7 @@ function runValidators(
     parent: any,
     parentKey?: string,
 ) {
-    for (let key in obj) {
+    for (const key of Object.keys(obj)) {
         const builder = obj[key];
         const value = parent && parent[key];
         const path = parentKey ? `${parentKey}.${key}` : key;
@@ -55,7 +55,7 @@ function runHooks(
     parent: any,
     parentKey?: string,
 ) {
-    for (let key in obj) {
+    for (const key of Object.keys(obj)) {
         const builder = obj[key];
         const value = parent && parent[key];
         const path = parentKey ? `${parentKey}.${key}` : key;

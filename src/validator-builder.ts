@@ -1,4 +1,5 @@
-import * as v from 'validator';
+import v from 'validator';
+import CompositeValidator from './composite-validator';
 import { exists } from './helpers';
 import _get = require('lodash.get');
 
@@ -44,7 +45,7 @@ export interface IValidators {
     test(regex: RegExp): IValidators;
 }
 
-function applyValidator(v: IValidator, value: any): boolean {
+export function applyValidator(v: IValidator, value: any): boolean {
     return v.fn(value, ...v.args);
 }
 
@@ -52,31 +53,15 @@ function required(value: any) {
     return exists(value) && (Array.isArray(value) || value.toString().trim().length > 0);
 }
 
-class CompositeValidator implements IValidator {
-    constructor(private first: IValidator, private second: IValidator) {
-        this.message = '';
-    }
-
-    message: string;
-
-    args = [];
-
-    fn(value: any) {
-        if (!applyValidator(this.first, value)) {
-            this.message = this.first.message;
-            return false;
-        }
-
-        if (!applyValidator(this.second, value)) {
-            this.message = this.second.message;
-            return false;
-        }
-
-        return true;
-    }
-}
-
 export class ValidatorBuilder implements IValidators {
+    static defineCustom(name: string, fn: ValidatorFn, errorMessage: string) {
+        Object.defineProperty(ValidatorBuilder.prototype, name, {
+            value(this: ValidatorBuilder, ...args: any[]) {
+                return this.addValidator(fn, errorMessage, ...args);
+            },
+        });
+    }
+
     constructor(private v?: IValidator) {}
 
     private addValidator(fn: ValidatorFn, message: string, ...args: any[]): IValidators {
@@ -100,14 +85,6 @@ export class ValidatorBuilder implements IValidators {
         if (!isValid) {
             return `${label} ${this.v.message}`;
         }
-    }
-
-    static defineCustom(name: string, fn: ValidatorFn, errorMessage: string) {
-        Object.defineProperty(ValidatorBuilder.prototype, name, {
-            value: function(this: ValidatorBuilder, ...args: any[]) {
-                return this.addValidator(fn, errorMessage, ...args);
-            },
-        });
     }
 
     required(): IValidators {

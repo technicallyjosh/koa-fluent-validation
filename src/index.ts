@@ -1,12 +1,13 @@
 import { IValidatorObject, IHooks } from './middleware';
 
 declare module 'koa' {
+    // tslint:disable-next-line:interface-name
     interface Context {
+        validationErrors: { [key: string]: string };
         validateBody(setup: IValidatorObject, hooks?: IHooks): void;
         validateParams(setup: IValidatorObject, hooks?: IHooks): void;
         validateQuery(setup: IValidatorObject, hooks?: IHooks): void;
         validateHeaders(setup: IValidatorObject, hooks?: IHooks): void;
-        validationErrors: { [key: string]: string };
     }
 }
 
