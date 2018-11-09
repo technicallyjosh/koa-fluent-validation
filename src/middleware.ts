@@ -1,5 +1,4 @@
-import * as Koa from 'koa';
-import * as v from 'validator';
+import Koa from 'koa';
 import { IValidators, ValidatorBuilder } from './validator-builder';
 import { IFilters, FilterBuilder } from './filter-builder';
 import set = require('lodash.set');
@@ -22,7 +21,7 @@ function runValidators(
     obj: IValidatorObject,
     root: any,
     parent: any,
-    parentKey?: string
+    parentKey?: string,
 ) {
     for (let key in obj) {
         const builder = obj[key];
@@ -54,7 +53,7 @@ function runHooks(
     obj: IFilterObject,
     root: any,
     parent: any,
-    parentKey?: string
+    parentKey?: string,
 ) {
     for (let key in obj) {
         const builder = obj[key];

@@ -1,7 +1,5 @@
-import * as Koa from 'koa';
-import { validation, v, f } from '../src';
-import { exists } from '../src/helpers';
-import { ValidatorBuilder, validatorBuilder, addCustom } from '../src/validator-builder';
+import { v } from '../src';
+import { ValidatorBuilder } from '../src/validator-builder';
 import { IValidators, IValidatorContext } from '../src/validator-builder';
 
 function checkUndefined(v: IValidators, values: any[]) {
@@ -15,50 +13,6 @@ function checkMessage(v: IValidators, values: any[], msg: string) {
 function errorTypes(v: IValidators, types: any[], msg: string) {
     types.forEach(type => expect(v.validate({ value: type })).toBe(msg));
 }
-
-describe('validator()', () => {
-    test('should be a function', () => {
-        expect(typeof validation).toBe('function');
-    });
-
-    test('should return an async function', () => {
-        expect(validation().constructor.name).toBe('AsyncFunction');
-    });
-
-    test('should apply properties on the context', async () => {
-        const middleware = validation();
-        const context = {} as Koa.Context;
-
-        await middleware(
-            context,
-            () =>
-                new Promise(resolve => {
-                    resolve();
-                })
-        );
-
-        expect(typeof context.validateBody).toBe('function');
-        expect(typeof context.validateParams).toBe('function');
-        expect(typeof context.validateQuery).toBe('function');
-        expect(typeof context.validateHeaders).toBe('function');
-        expect(context).toHaveProperty('validationErrors');
-        expect(context.validationErrors).toBeUndefined;
-    });
-});
-
-describe('helpers', () => {
-    describe('exists()', () => {
-        test('should work properly', () => {
-            expect(exists(undefined)).toBe(false);
-            expect(exists(null)).toBe(false);
-            expect(exists('')).toBe(true);
-            expect(exists({})).toBe(true);
-            expect(exists([])).toBe(true);
-            expect(exists(1)).toBe(true);
-            expect(exists(1.1)).toBe(true);
-        });
-    });
-});
 
 describe('validatorBuilder()', () => {
     test('should be a function', () => {

@@ -1,4 +1,3 @@
-import * as Koa from 'koa';
 import * as v from 'validator';
 import { exists } from './helpers';
 import _get = require('lodash.get');
@@ -51,18 +50,6 @@ function applyValidator(v: IValidator, value: any): boolean {
 
 function required(value: any) {
     return exists(value) && (Array.isArray(value) || value.toString().trim().length > 0);
-}
-
-function checkStrict(strict: boolean, type: string, value: any) {
-    if (!exists(value)) {
-        return true;
-    }
-
-    if (strict && typeof value !== 'number') {
-        return false;
-    }
-
-    return true;
 }
 
 class CompositeValidator implements IValidator {
@@ -119,7 +106,7 @@ export class ValidatorBuilder implements IValidators {
         Object.defineProperty(ValidatorBuilder.prototype, name, {
             value: function(this: ValidatorBuilder, ...args: any[]) {
                 return this.addValidator(fn, errorMessage, ...args);
-            }
+            },
         });
     }
 
@@ -140,7 +127,7 @@ export class ValidatorBuilder implements IValidators {
             },
             'is required.',
             path,
-            pred
+            pred,
         );
     }
 
@@ -151,7 +138,7 @@ export class ValidatorBuilder implements IValidators {
     string(): IValidators {
         return this.addValidator(
             ({ value }: IValidatorContext) => (!exists(value) ? true : typeof value === 'string'),
-            'is an invalid string.'
+            'is an invalid string.',
         );
     }
 
@@ -160,7 +147,7 @@ export class ValidatorBuilder implements IValidators {
             ({ value }: IValidatorContext, options: ValidatorJS.IsEmailOptions) =>
                 !exists(value) ? true : v.isEmail(value.toString(), options),
             'is an invalid email.',
-            options
+            options,
         );
     }
 
@@ -168,10 +155,10 @@ export class ValidatorBuilder implements IValidators {
         return this.addValidator(
             (
                 { value }: IValidatorContext,
-                version: 4 | 3 | 5 | '3' | '4' | '5' | 'all' | undefined
+                version: 4 | 3 | 5 | '3' | '4' | '5' | 'all' | undefined,
             ) => (!exists(value) ? true : v.isUUID(value.toString(), version)),
             `is an invalid v${version} UUID.`,
-            version
+            version,
         );
     }
 
@@ -189,7 +176,7 @@ export class ValidatorBuilder implements IValidators {
                 return v.isNumeric(value.toString());
             },
             'is an invalid number.',
-            strict
+            strict,
         );
     }
 
@@ -198,7 +185,7 @@ export class ValidatorBuilder implements IValidators {
             (
                 { value }: IValidatorContext,
                 strict: boolean,
-                options?: ValidatorJS.IsFloatOptions
+                options?: ValidatorJS.IsFloatOptions,
             ) => {
                 if (!exists(value)) {
                     return true;
@@ -212,7 +199,7 @@ export class ValidatorBuilder implements IValidators {
             },
             'is an invalid float.',
             strict,
-            options
+            options,
         );
     }
 
@@ -221,7 +208,7 @@ export class ValidatorBuilder implements IValidators {
             ({ value }: IValidatorContext, options?: ValidatorJS.IsCurrencyOptions) =>
                 !exists(value) ? true : v.isCurrency(value.toString(), options),
             'is an invalid currency.',
-            options
+            options,
         );
     }
 
@@ -239,7 +226,7 @@ export class ValidatorBuilder implements IValidators {
                 return v.isDecimal(value.toString());
             },
             'is an invalid decimal.',
-            strict
+            strict,
         );
     }
 
@@ -258,7 +245,7 @@ export class ValidatorBuilder implements IValidators {
             },
             'is an invalid int.',
             strict,
-            options
+            options,
         );
     }
 
@@ -270,7 +257,7 @@ export class ValidatorBuilder implements IValidators {
                 max ? ` and a max length of ${max}` : ''
             }.`,
             min,
-            max
+            max,
         );
     }
 
@@ -278,7 +265,7 @@ export class ValidatorBuilder implements IValidators {
         return this.addValidator(
             ({ value }: IValidatorContext) =>
                 !exists(value) ? true : typeof value === 'string' && v.isBase64(value),
-            'is an invalid base64 string.'
+            'is an invalid base64 string.',
         );
     }
 
@@ -286,7 +273,7 @@ export class ValidatorBuilder implements IValidators {
         return this.addValidator(
             ({ value }: IValidatorContext) =>
                 !exists(value) ? true : v.isBoolean(value.toString()),
-            'is an invalid boolean.'
+            'is an invalid boolean.',
         );
     }
 
@@ -295,7 +282,7 @@ export class ValidatorBuilder implements IValidators {
             ({ value }: IValidatorContext, values: any[]) =>
                 !exists(value) ? true : typeof value === 'string' && v.isIn(value, values),
             `is not a value of the following: ${values.join(',')}.`,
-            values
+            values,
         );
     }
 
@@ -304,7 +291,7 @@ export class ValidatorBuilder implements IValidators {
             ({ value }: IValidatorContext, options?: ValidatorJS.IsURLOptions) =>
                 !exists(value) ? true : typeof value === 'string' && v.isURL(value, options),
             'is an invalid URL.',
-            options
+            options,
         );
     }
 
@@ -317,7 +304,7 @@ export class ValidatorBuilder implements IValidators {
             ({ value }: IValidatorContext, seed: string) =>
                 !exists(value) ? true : typeof value === 'string' && v.contains(value, seed),
             `does not contain '${seed}'.`,
-            seed
+            seed,
         );
     }
 
@@ -340,7 +327,7 @@ export class ValidatorBuilder implements IValidators {
             },
             `is an invalid number or is lower than ${num}.`,
             num,
-            strict
+            strict,
         );
     }
 
@@ -363,7 +350,7 @@ export class ValidatorBuilder implements IValidators {
             },
             `is an invalid number or is higher than ${num}.`,
             num,
-            strict
+            strict,
         );
     }
 
@@ -372,7 +359,7 @@ export class ValidatorBuilder implements IValidators {
             ({ value }: IValidatorContext, locale: ValidatorJS.MobilePhoneLocale) =>
                 !exists(value) ? true : v.isMobilePhone(value.toString(), locale),
             `is an invalid phone number for ${locale}.`,
-            locale
+            locale,
         );
     }
 
@@ -381,14 +368,14 @@ export class ValidatorBuilder implements IValidators {
             ({ value }: IValidatorContext, version?: number) =>
                 !exists(value) ? true : v.isIP(value, version),
             `is an invalid v${version || 4} IP address.`,
-            version
+            version,
         );
     }
 
     creditCard(): IValidators {
         return this.addValidator(
             ({ value }: IValidatorContext) => (!exists(value) ? true : v.isCreditCard(value)),
-            'is an invalid credit card number.'
+            'is an invalid credit card number.',
         );
     }
 
@@ -396,7 +383,7 @@ export class ValidatorBuilder implements IValidators {
         return this.addValidator(
             ({ value }: IValidatorContext) => (!exists(value) ? true : regex.test(value)),
             'is invalid.',
-            regex
+            regex,
         );
     }
 }

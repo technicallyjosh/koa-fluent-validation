@@ -1,4 +1,4 @@
-import * as v from 'validator';
+import v from 'validator';
 
 export type FilterFn = (val: string, ...args: any[]) => any;
 
@@ -59,7 +59,7 @@ export class FilterBuilder implements IFilters {
         Object.defineProperty(FilterBuilder.prototype, name, {
             value: function(this: FilterBuilder, ...args: any[]) {
                 return this.addFilter(fn, ...args);
-            }
+            },
         });
     }
 
@@ -68,37 +68,58 @@ export class FilterBuilder implements IFilters {
     }
 
     toUpper() {
-        return this.addFilter((value: any) => (typeof value === 'string' ? value.toUpperCase() : value));
+        return this.addFilter((value: any) =>
+            typeof value === 'string' ? value.toUpperCase() : value,
+        );
     }
 
     toLower() {
-        return this.addFilter((value: any) => (typeof value === 'string' ? value.toLowerCase() : value));
+        return this.addFilter((value: any) =>
+            typeof value === 'string' ? value.toLowerCase() : value,
+        );
     }
 
     padStart(len: number, fill?: string) {
-        return this.addFilter((value: any, len: number, fill: string) => (typeof value === 'string' ? value.padStart(len, fill) : value), len, fill);
+        return this.addFilter(
+            (value: any, len: number, fill: string) =>
+                typeof value === 'string' ? value.padStart(len, fill) : value,
+            len,
+            fill,
+        );
     }
 
     padEnd(len: number, fill?: string) {
-        return this.addFilter((value: any, len: number, fill: string) => (typeof value === 'string' ? value.padEnd(len, fill) : value), len, fill);
+        return this.addFilter(
+            (value: any, len: number, fill: string) =>
+                typeof value === 'string' ? value.padEnd(len, fill) : value,
+            len,
+            fill,
+        );
     }
 
     normalizeEmail(options?: ValidatorJS.NormalizeEmailOptions) {
         return this.addFilter(
-            (value: any, options?: ValidatorJS.NormalizeEmailOptions) => (typeof value === 'string' && v.normalizeEmail(value, options)) || value,
-            options
+            (value: any, options?: ValidatorJS.NormalizeEmailOptions) =>
+                (typeof value === 'string' && v.normalizeEmail(value, options)) || value,
+            options,
         );
     }
 
     toInt(radix?: number) {
-        return this.addFilter((value: any, radix?: number) => (typeof value === 'string' ? v.toInt(value, radix) : value), radix);
+        return this.addFilter(
+            (value: any, radix?: number) =>
+                typeof value === 'string' ? v.toInt(value, radix) : value,
+            radix,
+        );
     }
 
     toBoolean(strict?: boolean) {
         return this.addFilter(
             (value: any, strict?: boolean) =>
-                typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? v.toBoolean(value.toString(), strict) : value,
-            strict
+                typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+                    ? v.toBoolean(value.toString(), strict)
+                    : value,
+            strict,
         );
     }
 }
