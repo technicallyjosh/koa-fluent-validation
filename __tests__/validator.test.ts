@@ -27,6 +27,5 @@ describe('validator()', () => {
         expect(typeof context.validateQuery).toBe('function');
         expect(typeof context.validateHeaders).toBe('function');
         expect(context).toHaveProperty('validationErrors');
-        expect(context.validationErrors).toBeUndefined;
     });
 });
