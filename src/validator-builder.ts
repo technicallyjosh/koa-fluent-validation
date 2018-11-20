@@ -23,6 +23,7 @@ export interface IValidators {
     required(): IValidators;
     requiredIf(path: string, pred: TPred): IValidators;
     requiredNotIf(path: string, pred: TPred): IValidators;
+    notNull(): IValidators;
     string(): IValidators;
     email(options?: ValidatorJS.IsEmailOptions): IValidators;
     uuid(version?: number): IValidators;
@@ -88,9 +89,7 @@ export class ValidatorBuilder implements IValidators {
     }
 
     required(): IValidators {
-        return this.addValidator(({ value }: IValidatorContext) => {
-            return required(value);
-        }, 'is required.');
+        return this.addValidator(({ value }: IValidatorContext) => required(value), 'is required.');
     }
 
     requiredIf(path: string, pred: TPred): IValidators {
@@ -110,6 +109,17 @@ export class ValidatorBuilder implements IValidators {
 
     requiredNotIf(path: string, pred: TPred): IValidators {
         return this.requiredIf(path, (value: any) => !pred(value));
+    }
+
+    notNull(): IValidators {
+        return this.addValidator(({ value }: IValidatorContext) => {
+            // if the value is defined, we need to make sure it's not null
+            if (value !== undefined && value === null) {
+                return false;
+            }
+
+            return true;
+        }, 'cannot be null if defined.');
     }
 
     string(): IValidators {

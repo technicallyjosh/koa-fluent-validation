@@ -25,8 +25,6 @@ describe('validatorBuilder()', () => {
 });
 
 describe('ValidatorBuilder', () => {
-    test('should extend custom validator', () => {});
-
     test('should throw if no validators', () => {
         expect(() => v().validate('test')).toThrow('No validators specified!');
     });
@@ -46,7 +44,7 @@ describe('ValidatorBuilder', () => {
         const ctx: IValidatorContext = {
             obj: { isRequired: false, username: null },
             path: 'username',
-            value: null
+            value: null,
         };
 
         expect(x.validate(ctx)).toBeUndefined();
@@ -61,7 +59,7 @@ describe('ValidatorBuilder', () => {
         const ctx: IValidatorContext = {
             obj: { username: 'test' },
             path: 'username',
-            value: 'test'
+            value: 'test',
         };
 
         expect(x.validate(ctx)).toBeUndefined();
@@ -69,6 +67,14 @@ describe('ValidatorBuilder', () => {
         delete ctx.value;
 
         expect(x.validate(ctx)).toBe('Value is required.');
+    });
+
+    test('notNull() should validate', () => {
+        const x = v().notNull();
+
+        checkUndefined(x, [undefined, 'test', [], {}, 1]);
+
+        errorTypes(x, [null], 'Value cannot be null if defined.');
     });
 
     test('string() should validate', () => {
@@ -204,7 +210,7 @@ describe('ValidatorBuilder', () => {
         checkMessage(
             x,
             [1, {}, [], true, false, 1.1, 'asdf'],
-            'Value is not a value of the following: test.'
+            'Value is not a value of the following: test.',
         );
     });
 
@@ -270,7 +276,7 @@ describe('ValidatorBuilder', () => {
             '4111111111111111',
             '4012888888881881',
             undefined,
-            null
+            null,
         ]);
         checkMessage(x, ['123', ''], msg);
     });
