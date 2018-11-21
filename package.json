@@ -14,10 +14,10 @@
     "license": "MIT",
     "scripts": {
         "lint": "tslint -p .",
-        "build": "yarn lint && rm -rf dist && tsc",
-        "test": "yarn build && jest --coverage",
+        "build": "npm run lint && rm -rf dist && tsc",
+        "test": "npm run build && jest --coverage",
         "watch": "concurrently \"tsc --watch\" \"jest --watch --coverage\"",
-        "prepublish": "yarn test"
+        "prepublishOnly": "npm run test"
     },
     "files": [
         "package.json",
@@ -29,19 +29,19 @@
     },
     "devDependencies": {
         "@types/jest": "^23.3.9",
-        "@types/koa-router": "^7.0.33",
-        "concurrently": "^4.0.1",
+        "@types/koa-router": "^7.0.35",
+        "concurrently": "^4.1.0",
         "jest": "^23.6.0",
         "ts-jest": "^23.10.4",
         "tslint": "^5.11.0",
         "typescript": "3.1.6"
     },
     "dependencies": {
-        "@types/koa": "^2.0.46",
-        "@types/koa-bodyparser": "^5.0.1",
+        "@types/koa": "^2.0.47",
+        "@types/koa-bodyparser": "^5.0.2",
         "@types/lodash.get": "^4.4.2",
         "@types/lodash.set": "^4.3.2",
-        "@types/validator": "^9.4.0",
+        "@types/validator": "^9.4.3",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
         "validator": "^10.9.0"
