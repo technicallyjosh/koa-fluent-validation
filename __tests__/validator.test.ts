@@ -1,5 +1,5 @@
 import Koa from 'koa';
-import { validation } from '../src';
+import { validation } from '../dist';
 
 describe('validator()', () => {
     test('should be a function', () => {

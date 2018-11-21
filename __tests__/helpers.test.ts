@@ -1,4 +1,4 @@
-import { exists } from '../src';
+import { exists } from '../dist';
 
 describe('helpers', () => {
     describe('exists()', () => {

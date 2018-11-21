@@ -1,6 +1,6 @@
-import { v } from '../src';
-import { ValidatorBuilder } from '../src/validator-builder';
-import { IValidators, IValidatorContext } from '../src/validator-builder';
+import { v } from '../dist';
+import { ValidatorBuilder } from '../dist/validator-builder';
+import { IValidators, IValidatorContext } from '../dist/validator-builder';
 
 function checkUndefined(v: IValidators, values: any[]) {
     values.forEach(value => expect(v.validate({ value })).toBeUndefined());
