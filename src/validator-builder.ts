@@ -138,13 +138,13 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    uuid(version: number = 4): IValidators {
+    uuid(version: 4 | 3 | 5 | '3' | '4' | '5' | 'all' | undefined = 4): IValidators {
         return this.addValidator(
             (
                 { value }: IValidatorContext,
                 version: 4 | 3 | 5 | '3' | '4' | '5' | 'all' | undefined,
             ) => (!exists(value) ? true : v.isUUID(value.toString(), version)),
-            `is an invalid v${version} UUID.`,
+            `is an invalid UUID (version: ${version}).`,
             version,
         );
     }
