@@ -99,7 +99,7 @@ describe('ValidatorBuilder', () => {
 
     test('uuid() should validate', () => {
         const x = v().uuid();
-        const msg = 'Value is an invalid v4 UUID.';
+        const msg = 'Value is an invalid UUID (version: 4).';
         const eTypes = [{}, [], 1, '', '134', 'be5fa2a8-6cfa-11e7-907b-a6006ad3dba0'];
 
         checkUndefined(x, ['4a368fb7-6084-41b0-bbd3-460f29301b3c', undefined, null]);

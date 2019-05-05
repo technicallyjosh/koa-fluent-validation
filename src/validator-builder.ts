@@ -26,7 +26,7 @@ export interface IValidators {
     notNull(): IValidators;
     string(): IValidators;
     email(options?: ValidatorJS.IsEmailOptions): IValidators;
-    uuid(version?: number): IValidators;
+    uuid(version?: UUIDVersion): IValidators;
     number(strict?: boolean): IValidators;
     float(strict?: boolean, options?: ValidatorJS.IsFloatOptions): IValidators;
     currency(options?: ValidatorJS.IsCurrencyOptions): IValidators;
@@ -45,6 +45,8 @@ export interface IValidators {
     creditCard(): IValidators;
     test(regex: RegExp): IValidators;
 }
+
+type UUIDVersion = 4 | 3 | 5 | '3' | '4' | '5' | 'all';
 
 export function applyValidator(v: IValidator, value: any): boolean {
     return v.fn(value, ...v.args);
@@ -138,12 +140,10 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    uuid(version: 4 | 3 | 5 | '3' | '4' | '5' | 'all' | undefined = 4): IValidators {
+    uuid(version: UUIDVersion = 4): IValidators {
         return this.addValidator(
-            (
-                { value }: IValidatorContext,
-                version: 4 | 3 | 5 | '3' | '4' | '5' | 'all' | undefined,
-            ) => (!exists(value) ? true : v.isUUID(value.toString(), version)),
+            ({ value }: IValidatorContext, version: UUIDVersion) =>
+                !exists(value) ? true : v.isUUID(value.toString(), version),
             `is an invalid UUID (version: ${version}).`,
             version,
         );
