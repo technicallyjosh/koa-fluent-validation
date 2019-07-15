@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+    - 10
+jobs:
+    include:
+        - stage: 'Lint'
+          script: npm run lint
+        - stage: 'Build'
+          script: npm run build
+        - stage: 'Tests'
+          script: npm run test
+        - stage: 'Release'
+          deploy:
+              provider: npm
+              email: git@technicallyjosh.com
+              api_key: $NPM_API_KEY
+              on:
+                  tags: true
+                  repo: technicallyjosh/koa-fluent-validation
