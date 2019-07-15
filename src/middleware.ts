@@ -1,29 +1,29 @@
 import Koa from 'koa';
-import { IValidators, ValidatorBuilder } from './validator-builder';
-import { IFilters, FilterBuilder } from './filter-builder';
+import { Validators, ValidatorBuilder } from './validator-builder';
+import { Filter, FilterBuilder } from './filter-builder';
 import set = require('lodash.set');
 
-export interface IValidatorObject {
-    [key: string]: IValidators | IValidatorObject;
+export interface ValidatorObject {
+    [key: string]: Validators | ValidatorObject;
 }
 
-export interface IFilterObject {
-    [key: string]: IFilters | IFilterObject;
+export interface FilterObject {
+    [key: string]: Filter | FilterObject;
 }
 
-export interface IHooks {
-    before?: IFilterObject;
-    after?: IFilterObject;
+export interface Hooks {
+    before?: FilterObject;
+    after?: FilterObject;
 }
 
 function runValidators(
     ctx: Koa.Context,
-    obj: IValidatorObject,
+    obj: ValidatorObject,
     root: any,
     parent: any,
     parentKey?: string,
 ) {
-    for (const key of Object.keys(obj)) {
+    for (const key in obj) {
         const builder = obj[key];
         const value = parent && parent[key];
         const path = parentKey ? `${parentKey}.${key}` : key;
@@ -38,7 +38,7 @@ function runValidators(
             continue;
         }
 
-        runValidators(ctx, builder as IValidatorObject, root, value, path);
+        runValidators(ctx, builder as ValidatorObject, root, value, path);
     }
 
     if (!parentKey) {
@@ -50,12 +50,12 @@ function runValidators(
 
 function runHooks(
     ctx: Koa.Context,
-    obj: IFilterObject,
+    obj: FilterObject,
     root: any,
     parent: any,
     parentKey?: string,
 ) {
-    for (const key of Object.keys(obj)) {
+    for (const key in obj) {
         const builder = obj[key];
         const value = parent && parent[key];
         const path = parentKey ? `${parentKey}.${key}` : key;
@@ -78,11 +78,16 @@ function runHooks(
             continue;
         }
 
-        runHooks(ctx, builder as IFilterObject, root, value, path);
+        runHooks(ctx, builder as FilterObject, root, value, path);
     }
 }
 
-function validate(ctx: Koa.Context, setup: IValidatorObject, obj: any, hooks?: IHooks) {
+function validate(
+    ctx: Koa.Context,
+    setup: ValidatorObject,
+    obj: any,
+    hooks?: Hooks,
+) {
     if (
         hooks !== undefined &&
         hooks !== null &&
@@ -104,15 +109,25 @@ function validate(ctx: Koa.Context, setup: IValidatorObject, obj: any, hooks?: I
     }
 }
 
-function validateBody(this: Koa.Context, setup: IValidatorObject, hooks?: IHooks) {
+function validateBody(
+    this: Koa.Context,
+    setup: ValidatorObject,
+    hooks?: Hooks,
+) {
     if (this.request.body === undefined) {
-        throw new Error('ctx.request.body is missing. You must use a body parser.');
+        throw new Error(
+            'ctx.request.body is missing. You must use a body parser.',
+        );
     }
 
     validate(this, setup, this.request.body, hooks);
 }
 
-function validateParams(this: Koa.Context, setup: IValidatorObject, hooks?: IHooks) {
+function validateParams(
+    this: Koa.Context,
+    setup: ValidatorObject,
+    hooks?: Hooks,
+) {
     if (this.params === undefined) {
         throw new Error('ctx.params is missing. Try using a router.');
     }
@@ -120,11 +135,19 @@ function validateParams(this: Koa.Context, setup: IValidatorObject, hooks?: IHoo
     validate(this, setup, this.params, hooks);
 }
 
-function validateQuery(this: Koa.Context, setup: IValidatorObject, hooks?: IHooks) {
+function validateQuery(
+    this: Koa.Context,
+    setup: ValidatorObject,
+    hooks?: Hooks,
+) {
     validate(this, setup, this.query, hooks);
 }
 
-function validateHeaders(this: Koa.Context, setup: IValidatorObject, hooks?: IHooks) {
+function validateHeaders(
+    this: Koa.Context,
+    setup: ValidatorObject,
+    hooks?: Hooks,
+) {
     validate(this, setup, this.headers, hooks);
 }
 

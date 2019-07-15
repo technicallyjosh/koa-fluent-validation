@@ -1,11 +1,16 @@
-import { IFilter, applyFilter } from './filter-builder';
+import { Filter, applyFilter } from './filter-builder';
 
-export default class CompositeFilter implements IFilter {
-    args = [];
+export default class CompositeFilter implements Filter {
+    public args = [];
+    private f1: Filter;
+    private f2: Filter;
 
-    constructor(private f1: IFilter, private f2: IFilter) {}
+    public constructor(f1: Filter, f2: Filter) {
+        this.f1 = f1;
+        this.f2 = f2;
+    }
 
-    fn(val: string) {
+    public fn(val: string) {
         return applyFilter(this.f1, applyFilter(this.f2, val));
     }
 }

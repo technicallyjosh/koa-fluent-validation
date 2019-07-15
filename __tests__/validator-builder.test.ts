@@ -1,16 +1,16 @@
 import { v } from '../dist';
 import { ValidatorBuilder } from '../dist/validator-builder';
-import { IValidators, IValidatorContext } from '../dist/validator-builder';
+import { Validators, ValidatorContext } from '../dist/validator-builder';
 
-function checkUndefined(v: IValidators, values: any[]) {
+function checkUndefined(v: Validators, values: any[]) {
     values.forEach(value => expect(v.validate({ value })).toBeUndefined());
 }
 
-function checkMessage(v: IValidators, values: any[], msg: string) {
+function checkMessage(v: Validators, values: any[], msg: string) {
     values.forEach(value => expect(v.validate({ value })).toBe(msg));
 }
 
-function errorTypes(v: IValidators, types: any[], msg: string) {
+function errorTypes(v: Validators, types: any[], msg: string) {
     types.forEach(type => expect(v.validate({ value: type })).toBe(msg));
 }
 
@@ -41,7 +41,7 @@ describe('ValidatorBuilder', () => {
 
     test('requiredIf() should validate', () => {
         const x = v().requiredIf('isRequired', value => value === true);
-        const ctx: IValidatorContext = {
+        const ctx: ValidatorContext = {
             obj: { isRequired: false, username: null },
             path: 'username',
             value: null,
@@ -56,7 +56,7 @@ describe('ValidatorBuilder', () => {
 
     test('requiredNotIf() should validate', () => {
         const x = v().requiredNotIf('username', value => value === 'testuser');
-        const ctx: IValidatorContext = {
+        const ctx: ValidatorContext = {
             obj: { username: 'test' },
             path: 'username',
             value: 'test',
@@ -100,9 +100,20 @@ describe('ValidatorBuilder', () => {
     test('uuid() should validate', () => {
         const x = v().uuid();
         const msg = 'Value is an invalid UUID (version: 4).';
-        const eTypes = [{}, [], 1, '', '134', 'be5fa2a8-6cfa-11e7-907b-a6006ad3dba0'];
+        const eTypes = [
+            {},
+            [],
+            1,
+            '',
+            '134',
+            'be5fa2a8-6cfa-11e7-907b-a6006ad3dba0',
+        ];
 
-        checkUndefined(x, ['4a368fb7-6084-41b0-bbd3-460f29301b3c', undefined, null]);
+        checkUndefined(x, [
+            '4a368fb7-6084-41b0-bbd3-460f29301b3c',
+            undefined,
+            null,
+        ]);
 
         errorTypes(x, eTypes, msg);
     });
@@ -169,8 +180,10 @@ describe('ValidatorBuilder', () => {
         const min2 = v().length(2);
         const max1 = v().length(1, 1);
         const max2 = v().length(1, 2);
-        const msg1 = 'Value is an invalid string or does not have a min length of 1.';
-        const msg2 = 'Value is an invalid string or does not have a min length of 2.';
+        const msg1 =
+            'Value is an invalid string or does not have a min length of 1.';
+        const msg2 =
+            'Value is an invalid string or does not have a min length of 2.';
         const msg3 =
             'Value is an invalid string or does not have a min length of 1 and a max length of 1.';
         const msg4 =
@@ -199,7 +212,16 @@ describe('ValidatorBuilder', () => {
     test('boolean() should validate', () => {
         const x = v().boolean();
 
-        checkUndefined(x, [true, false, 'true', 'false', 1, 0, undefined, null]);
+        checkUndefined(x, [
+            true,
+            false,
+            'true',
+            'false',
+            1,
+            0,
+            undefined,
+            null,
+        ]);
         checkMessage(x, ['', 'asdf'], 'Value is an invalid boolean.');
     });
 
@@ -256,7 +278,11 @@ describe('ValidatorBuilder', () => {
         const x = v().mobilePhone();
 
         checkUndefined(x, [8005551234, '8005551234', undefined, null]);
-        checkMessage(x, ['123', 123, '5551234'], 'Value is an invalid phone number for en-US.');
+        checkMessage(
+            x,
+            ['123', 123, '5551234'],
+            'Value is an invalid phone number for en-US.',
+        );
     });
 
     test('ipAddress() should validate', () => {

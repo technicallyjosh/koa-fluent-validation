@@ -1,14 +1,19 @@
-import { IValidator, applyValidator } from './validator-builder';
+import { Validator, applyValidator } from './validator-builder';
 
-export default class CompositeValidator implements IValidator {
-    message: string;
-    args = [];
+export default class CompositeValidator implements Validator {
+    public message: string;
+    public args = [];
 
-    constructor(private first: IValidator, private second: IValidator) {
+    private first: Validator;
+    private second: Validator;
+
+    public constructor(first: Validator, second: Validator) {
         this.message = '';
+        this.first = first;
+        this.second = second;
     }
 
-    fn(value: any) {
+    public fn(value: any) {
         if (!applyValidator(this.first, value)) {
             this.message = this.first.message;
             return false;

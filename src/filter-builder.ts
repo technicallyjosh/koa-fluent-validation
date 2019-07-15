@@ -3,29 +3,31 @@ import CompositeFilter from './composite-filter';
 
 export type FilterFn = (val: string, ...args: any[]) => any;
 
-export interface IFilter {
+export interface Filter {
     fn: FilterFn;
     args: any[];
 }
 
-export interface IFilters {
+export interface Filters {
     filter(value: any): any;
-    trim(): IFilters;
-    toUpper(): IFilters;
-    toLower(): IFilters;
-    padStart(len: number, fill?: string): IFilters;
-    padEnd(len: number, fill?: string): IFilters;
-    normalizeEmail(options?: ValidatorJS.NormalizeEmailOptions): IFilters;
-    toInt(radix?: number): IFilters;
-    toBoolean(): IFilters;
+    trim(): Filters;
+    toUpper(): Filters;
+    toLower(): Filters;
+    padStart(len: number, fill?: string): Filters;
+    padEnd(len: number, fill?: string): Filters;
+    normalizeEmail(options?: ValidatorJS.NormalizeEmailOptions): Filters;
+    toInt(radix?: number): Filters;
+    toBoolean(): Filters;
 }
 
-export function applyFilter(f: IFilter, value: any): any {
+export function applyFilter(f: Filter, value: any): any {
     return f.fn(value, ...f.args);
 }
 
-export class FilterBuilder implements IFilters {
-    static defineCustom(name: string, fn: FilterFn) {
+export class FilterBuilder implements Filters {
+    private f?: Filter;
+
+    public static defineCustom(name: string, fn: FilterFn) {
         Object.defineProperty(FilterBuilder.prototype, name, {
             value(this: FilterBuilder, ...args: any[]) {
                 return this.addFilter(fn, ...args);
@@ -33,10 +35,12 @@ export class FilterBuilder implements IFilters {
         });
     }
 
-    constructor(private f?: IFilter) {}
+    public constructor(f?: Filter) {
+        this.f = f;
+    }
 
-    private addFilter(fn: FilterFn, ...args: any[]): IFilters {
-        const filter: IFilter = { fn, args };
+    private addFilter(fn: FilterFn, ...args: any[]): Filters {
+        const filter: Filter = { fn, args };
 
         if (this.f) {
             return new FilterBuilder(new CompositeFilter(filter, this.f));
@@ -46,7 +50,7 @@ export class FilterBuilder implements IFilters {
         return this;
     }
 
-    filter(value: any): any {
+    public filter(value: any): any {
         if (this.f === undefined) {
             throw new Error('No filters specified!');
         }
@@ -54,23 +58,25 @@ export class FilterBuilder implements IFilters {
         return applyFilter(this.f, value);
     }
 
-    trim() {
-        return this.addFilter((value: any) => (typeof value === 'string' ? value.trim() : value));
+    public trim() {
+        return this.addFilter((value: any) =>
+            typeof value === 'string' ? value.trim() : value,
+        );
     }
 
-    toUpper() {
+    public toUpper() {
         return this.addFilter((value: any) =>
             typeof value === 'string' ? value.toUpperCase() : value,
         );
     }
 
-    toLower() {
+    public toLower() {
         return this.addFilter((value: any) =>
             typeof value === 'string' ? value.toLowerCase() : value,
         );
     }
 
-    padStart(len: number, fill?: string) {
+    public padStart(len: number, fill?: string) {
         return this.addFilter(
             (value: any, len: number, fill: string) =>
                 typeof value === 'string' ? value.padStart(len, fill) : value,
@@ -79,7 +85,7 @@ export class FilterBuilder implements IFilters {
         );
     }
 
-    padEnd(len: number, fill?: string) {
+    public padEnd(len: number, fill?: string) {
         return this.addFilter(
             (value: any, len: number, fill: string) =>
                 typeof value === 'string' ? value.padEnd(len, fill) : value,
@@ -88,15 +94,17 @@ export class FilterBuilder implements IFilters {
         );
     }
 
-    normalizeEmail(options?: ValidatorJS.NormalizeEmailOptions) {
+    public normalizeEmail(options?: ValidatorJS.NormalizeEmailOptions) {
         return this.addFilter(
             (value: any, options?: ValidatorJS.NormalizeEmailOptions) =>
-                (typeof value === 'string' && v.normalizeEmail(value, options)) || value,
+                (typeof value === 'string' &&
+                    v.normalizeEmail(value, options)) ||
+                value,
             options,
         );
     }
 
-    toInt(radix?: number) {
+    public toInt(radix?: number) {
         return this.addFilter(
             (value: any, radix?: number) =>
                 typeof value === 'string' ? v.toInt(value, radix) : value,
@@ -104,10 +112,12 @@ export class FilterBuilder implements IFilters {
         );
     }
 
-    toBoolean(strict?: boolean) {
+    public toBoolean(strict?: boolean) {
         return this.addFilter(
             (value: any, strict?: boolean) =>
-                typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+                typeof value === 'string' ||
+                typeof value === 'number' ||
+                typeof value === 'boolean'
                     ? v.toBoolean(value.toString(), strict)
                     : value,
             strict,
@@ -115,7 +125,7 @@ export class FilterBuilder implements IFilters {
     }
 }
 
-export function filterBuilder(): IFilters {
+export function filterBuilder(): Filters {
     return new FilterBuilder();
 }
 

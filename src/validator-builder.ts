@@ -3,61 +3,73 @@ import CompositeValidator from './composite-validator';
 import { exists } from './helpers';
 import _get = require('lodash.get');
 
-export type ValidatorFn = (context: IValidatorContext, ...args: any[]) => boolean;
+export type ValidatorFn = (
+    context: ValidatorContext,
+    ...args: any[]
+) => boolean;
 export type TPred = (value: any) => boolean;
 
-export interface IValidator {
+export interface Validator {
     fn: ValidatorFn;
     message: string;
     args: any[];
 }
 
-export interface IValidatorContext {
+export interface ValidatorContext {
     obj: any;
     path: string;
     value: any;
 }
 
-export interface IValidators {
+export interface Validators {
     validate(value: any, label?: string): string | undefined;
-    required(): IValidators;
-    requiredIf(path: string, pred: TPred): IValidators;
-    requiredNotIf(path: string, pred: TPred): IValidators;
-    notNull(): IValidators;
-    string(): IValidators;
-    email(options?: ValidatorJS.IsEmailOptions): IValidators;
-    uuid(version?: UUIDVersion): IValidators;
-    number(strict?: boolean): IValidators;
-    float(strict?: boolean, options?: ValidatorJS.IsFloatOptions): IValidators;
-    currency(options?: ValidatorJS.IsCurrencyOptions): IValidators;
-    decimal(strict?: boolean): IValidators;
-    int(strict?: boolean, options?: ValidatorJS.IsIntOptions): IValidators;
-    length(min?: number, max?: number): IValidators;
-    base64(): IValidators;
-    boolean(): IValidators;
-    in(values: any[]): IValidators;
-    url(options?: ValidatorJS.IsURLOptions): IValidators;
-    contains(seed: string): IValidators;
-    min(num: number, strict?: boolean): IValidators;
-    max(num: number, strict?: boolean): IValidators;
-    mobilePhone(locale?: ValidatorJS.MobilePhoneLocale): IValidators;
-    ipAddress(version?: number): IValidators;
-    creditCard(): IValidators;
-    test(regex: RegExp): IValidators;
+    required(): Validators;
+    requiredIf(path: string, pred: TPred): Validators;
+    requiredNotIf(path: string, pred: TPred): Validators;
+    notNull(): Validators;
+    string(): Validators;
+    email(options?: ValidatorJS.IsEmailOptions): Validators;
+    uuid(version?: UUIDVersion): Validators;
+    number(strict?: boolean): Validators;
+    float(strict?: boolean, options?: ValidatorJS.IsFloatOptions): Validators;
+    currency(options?: ValidatorJS.IsCurrencyOptions): Validators;
+    decimal(strict?: boolean): Validators;
+    int(strict?: boolean, options?: ValidatorJS.IsIntOptions): Validators;
+    length(min?: number, max?: number): Validators;
+    base64(): Validators;
+    boolean(): Validators;
+    in(values: any[]): Validators;
+    url(options?: ValidatorJS.IsURLOptions): Validators;
+    contains(seed: string): Validators;
+    min(num: number, strict?: boolean): Validators;
+    max(num: number, strict?: boolean): Validators;
+    mobilePhone(locale?: ValidatorJS.MobilePhoneLocale): Validators;
+    ipAddress(version?: number): Validators;
+    creditCard(): Validators;
+    test(regex: RegExp): Validators;
 }
 
 type UUIDVersion = 4 | 3 | 5 | '3' | '4' | '5' | 'all';
 
-export function applyValidator(v: IValidator, value: any): boolean {
+export function applyValidator(v: Validator, value: any): boolean {
     return v.fn(value, ...v.args);
 }
 
 function required(value: any) {
-    return exists(value) && (Array.isArray(value) || value.toString().trim().length > 0);
+    return (
+        exists(value) &&
+        (Array.isArray(value) || value.toString().trim().length > 0)
+    );
 }
 
-export class ValidatorBuilder implements IValidators {
-    static defineCustom(name: string, fn: ValidatorFn, errorMessage: string) {
+export class ValidatorBuilder implements Validators {
+    private v?: Validator;
+
+    public static defineCustom(
+        name: string,
+        fn: ValidatorFn,
+        errorMessage: string,
+    ) {
         Object.defineProperty(ValidatorBuilder.prototype, name, {
             value(this: ValidatorBuilder, ...args: any[]) {
                 return this.addValidator(fn, errorMessage, ...args);
@@ -65,20 +77,28 @@ export class ValidatorBuilder implements IValidators {
         });
     }
 
-    constructor(private v?: IValidator) {}
+    public constructor(v?: Validator) {
+        this.v = v;
+    }
 
-    private addValidator(fn: ValidatorFn, message: string, ...args: any[]): IValidators {
-        const validator: IValidator = { fn, message, args };
+    private addValidator(
+        fn: ValidatorFn,
+        message: string,
+        ...args: any[]
+    ): Validators {
+        const validator: Validator = { fn, message, args };
 
         if (this.v) {
-            return new ValidatorBuilder(new CompositeValidator(this.v, validator));
+            return new ValidatorBuilder(
+                new CompositeValidator(this.v, validator),
+            );
         }
 
         this.v = validator;
         return this;
     }
 
-    validate(value: any, label: string = 'Value'): string | undefined {
+    public validate(value: any, label: string = 'Value'): string | undefined {
         if (this.v === undefined) {
             throw new Error('No validators specified!');
         }
@@ -90,13 +110,16 @@ export class ValidatorBuilder implements IValidators {
         }
     }
 
-    required(): IValidators {
-        return this.addValidator(({ value }: IValidatorContext) => required(value), 'is required.');
+    public required(): Validators {
+        return this.addValidator(
+            ({ value }: ValidatorContext) => required(value),
+            'is required.',
+        );
     }
 
-    requiredIf(path: string, pred: TPred): IValidators {
+    public requiredIf(path: string, pred: TPred): Validators {
         return this.addValidator(
-            (ctx: IValidatorContext, path: string, pred: TPred) => {
+            (ctx: ValidatorContext, path: string, pred: TPred) => {
                 if (pred(_get(ctx.obj, path))) {
                     return required(ctx.value);
                 }
@@ -109,12 +132,12 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    requiredNotIf(path: string, pred: TPred): IValidators {
+    public requiredNotIf(path: string, pred: TPred): Validators {
         return this.requiredIf(path, (value: any) => !pred(value));
     }
 
-    notNull(): IValidators {
-        return this.addValidator(({ value }: IValidatorContext) => {
+    public notNull(): Validators {
+        return this.addValidator(({ value }: ValidatorContext) => {
             // if the value is defined, we need to make sure it's not null
             if (value !== undefined && value === null) {
                 return false;
@@ -124,34 +147,37 @@ export class ValidatorBuilder implements IValidators {
         }, 'cannot be null if defined.');
     }
 
-    string(): IValidators {
+    public string(): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext) => (!exists(value) ? true : typeof value === 'string'),
+            ({ value }: ValidatorContext) =>
+                !exists(value) ? true : typeof value === 'string',
             'is an invalid string.',
         );
     }
 
-    email(options?: ValidatorJS.IsEmailOptions): IValidators {
+    public email(options?: ValidatorJS.IsEmailOptions): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext, options: ValidatorJS.IsEmailOptions) =>
-                !exists(value) ? true : v.isEmail(value.toString(), options),
+            (
+                { value }: ValidatorContext,
+                options: ValidatorJS.IsEmailOptions,
+            ) => (!exists(value) ? true : v.isEmail(value.toString(), options)),
             'is an invalid email.',
             options,
         );
     }
 
-    uuid(version: UUIDVersion = 4): IValidators {
+    public uuid(version: UUIDVersion = 4): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext, version: UUIDVersion) =>
+            ({ value }: ValidatorContext, version: UUIDVersion) =>
                 !exists(value) ? true : v.isUUID(value.toString(), version),
             `is an invalid UUID (version: ${version}).`,
             version,
         );
     }
 
-    number(strict: boolean = false): IValidators {
+    public number(strict: boolean = false): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext, strict: boolean) => {
+            ({ value }: ValidatorContext, strict: boolean) => {
                 if (!exists(value)) {
                     return true;
                 }
@@ -167,10 +193,13 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    float(strict: boolean = false, options?: ValidatorJS.IsFloatOptions): IValidators {
+    public float(
+        strict: boolean = false,
+        options?: ValidatorJS.IsFloatOptions,
+    ): Validators {
         return this.addValidator(
             (
-                { value }: IValidatorContext,
+                { value }: ValidatorContext,
                 strict: boolean,
                 options?: ValidatorJS.IsFloatOptions,
             ) => {
@@ -190,18 +219,21 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    currency(options?: ValidatorJS.IsCurrencyOptions): IValidators {
+    public currency(options?: ValidatorJS.IsCurrencyOptions): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext, options?: ValidatorJS.IsCurrencyOptions) =>
+            (
+                { value }: ValidatorContext,
+                options?: ValidatorJS.IsCurrencyOptions,
+            ) =>
                 !exists(value) ? true : v.isCurrency(value.toString(), options),
             'is an invalid currency.',
             options,
         );
     }
 
-    decimal(strict: boolean = false): IValidators {
+    public decimal(strict: boolean = false): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext, strict: boolean) => {
+            ({ value }: ValidatorContext, strict: boolean) => {
                 if (!exists(value)) {
                     return true;
                 }
@@ -217,9 +249,16 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    int(strict: boolean = false, options?: ValidatorJS.IsIntOptions): IValidators {
+    public int(
+        strict: boolean = false,
+        options?: ValidatorJS.IsIntOptions,
+    ): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext, strict: boolean, options?: ValidatorJS.IsIntOptions) => {
+            (
+                { value }: ValidatorContext,
+                strict: boolean,
+                options?: ValidatorJS.IsIntOptions,
+            ) => {
                 if (!exists(value)) {
                     return true;
                 }
@@ -236,10 +275,12 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    length(min: number = 1, max?: number): IValidators {
+    public length(min: number = 1, max?: number): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext, min: number, max?: number) =>
-                !exists(value) ? true : typeof value === 'string' && v.isLength(value, min, max),
+            ({ value }: ValidatorContext, min: number, max?: number) =>
+                !exists(value)
+                    ? true
+                    : typeof value === 'string' && v.isLength(value, min, max),
             `is an invalid string or does not have a min length of ${min}${
                 max ? ` and a max length of ${max}` : ''
             }.`,
@@ -248,60 +289,68 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    base64(): IValidators {
+    public base64(): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext) =>
-                !exists(value) ? true : typeof value === 'string' && v.isBase64(value),
+            ({ value }: ValidatorContext) =>
+                !exists(value)
+                    ? true
+                    : typeof value === 'string' && v.isBase64(value),
             'is an invalid base64 string.',
         );
     }
 
-    boolean(): IValidators {
+    public boolean(): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext) =>
+            ({ value }: ValidatorContext) =>
                 !exists(value) ? true : v.isBoolean(value.toString()),
             'is an invalid boolean.',
         );
     }
 
-    in(values: any[]): IValidators {
+    public in(values: any[]): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext, values: any[]) =>
-                !exists(value) ? true : typeof value === 'string' && v.isIn(value, values),
+            ({ value }: ValidatorContext, values: any[]) =>
+                !exists(value)
+                    ? true
+                    : typeof value === 'string' && v.isIn(value, values),
             `is not a value of the following: ${values.join(',')}.`,
             values,
         );
     }
 
-    url(options?: ValidatorJS.IsURLOptions): IValidators {
+    public url(options?: ValidatorJS.IsURLOptions): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext, options?: ValidatorJS.IsURLOptions) =>
-                !exists(value) ? true : typeof value === 'string' && v.isURL(value, options),
+            ({ value }: ValidatorContext, options?: ValidatorJS.IsURLOptions) =>
+                !exists(value)
+                    ? true
+                    : typeof value === 'string' && v.isURL(value, options),
             'is an invalid URL.',
             options,
         );
     }
 
-    contains(seed: string): IValidators {
+    public contains(seed: string): Validators {
         if (typeof seed !== 'string') {
             throw new Error(`${seed} is an invalid string.`);
         }
 
         return this.addValidator(
-            ({ value }: IValidatorContext, seed: string) =>
-                !exists(value) ? true : typeof value === 'string' && v.contains(value, seed),
+            ({ value }: ValidatorContext, seed: string) =>
+                !exists(value)
+                    ? true
+                    : typeof value === 'string' && v.contains(value, seed),
             `does not contain '${seed}'.`,
             seed,
         );
     }
 
-    min(num: number, strict: boolean = false): IValidators {
+    public min(num: number, strict: boolean = false): Validators {
         if (typeof num !== 'number') {
             throw new Error(`${num} is an invalid number.`);
         }
 
         return this.addValidator(
-            ({ value }: IValidatorContext, num: number, strict: boolean) => {
+            ({ value }: ValidatorContext, num: number, strict: boolean) => {
                 if (!exists(value)) {
                     return true;
                 }
@@ -318,13 +367,13 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    max(num: number, strict: boolean = false): IValidators {
+    public max(num: number, strict: boolean = false): Validators {
         if (typeof num !== 'number') {
             throw new Error(`${num} is an invalid number.`);
         }
 
         return this.addValidator(
-            ({ value }: IValidatorContext, num: number, strict: boolean) => {
+            ({ value }: ValidatorContext, num: number, strict: boolean) => {
                 if (!exists(value)) {
                     return true;
                 }
@@ -341,42 +390,55 @@ export class ValidatorBuilder implements IValidators {
         );
     }
 
-    mobilePhone(locale: ValidatorJS.MobilePhoneLocale = 'en-US'): IValidators {
+    public mobilePhone(
+        locale: ValidatorJS.MobilePhoneLocale = 'en-US',
+    ): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext, locale: ValidatorJS.MobilePhoneLocale) =>
-                !exists(value) ? true : v.isMobilePhone(value.toString(), locale),
+            (
+                { value }: ValidatorContext,
+                locale: ValidatorJS.MobilePhoneLocale,
+            ) =>
+                !exists(value)
+                    ? true
+                    : v.isMobilePhone(value.toString(), locale),
             `is an invalid phone number for ${locale}.`,
             locale,
         );
     }
 
-    ipAddress(version?: number): IValidators {
+    public ipAddress(version?: number): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext, version?: number) =>
+            ({ value }: ValidatorContext, version?: number) =>
                 !exists(value) ? true : v.isIP(value, version),
             `is an invalid v${version || 4} IP address.`,
             version,
         );
     }
 
-    creditCard(): IValidators {
+    public creditCard(): Validators {
         return this.addValidator(
-            ({ value }: IValidatorContext) => (!exists(value) ? true : v.isCreditCard(value)),
+            ({ value }: ValidatorContext) =>
+                !exists(value) ? true : v.isCreditCard(value),
             'is an invalid credit card number.',
         );
     }
 
-    test(regex: RegExp) {
+    public test(regex: RegExp) {
         return this.addValidator(
-            ({ value }: IValidatorContext) => (!exists(value) ? true : regex.test(value)),
+            ({ value }: ValidatorContext) =>
+                !exists(value) ? true : regex.test(value),
             'is invalid.',
             regex,
         );
     }
 }
 
-export const validatorBuilder = (): IValidators => new ValidatorBuilder();
+export const validatorBuilder = (): Validators => new ValidatorBuilder();
 
-export function addCustom(name: string, fn: ValidatorFn, errorMessage: string = 'Invalid') {
+export function addCustom(
+    name: string,
+    fn: ValidatorFn,
+    errorMessage: string = 'Invalid',
+) {
     ValidatorBuilder.defineCustom(name, fn, errorMessage);
 }
