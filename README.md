@@ -1,6 +1,8 @@
 # koa-fluent-validation
 
-[![NPM version][npm-image]][npm-url]
+![npm](https://img.shields.io/npm/v/koa-fluent-validation.svg?style=for-the-badge)
+![Travis (.org)](https://img.shields.io/travis/technicallyjosh/koa-fluent-validation.svg?style=for-the-badge)
+![David](https://img.shields.io/david/technicallyjosh/koa-fluent-validation.svg?style=for-the-badge)
 
 Fluent, functional, and extendable validation for Koa 2 body, params, and query. Built on [validator](https://github.com/chriso/validator.js/) for base validations and filters.
 
@@ -58,12 +60,12 @@ app.use(async (ctx, next) => {
                 .string(),
             lastName: v()
                 .required()
-                .string()
+                .string(),
         },
         {
             firstName: f().trim(),
-            lastName: f().trim()
-        }
+            lastName: f().trim(),
+        },
     );
 
     // your code here
@@ -76,10 +78,6 @@ app.listen(8080);
 
 **For documentation see the [wiki](https://github.com/technicallyjosh/koa-fluent-validation/wiki)!**
 
-[npm-url]: https://npmjs.org/package/koa-fluent-validation
-[npm-image]: http://img.shields.io/npm/v/koa-fluent-validation.svg?style=plastic
-
 ## TODO
 
 -   [] Filter Tests
--   [] Automate build via Travis
