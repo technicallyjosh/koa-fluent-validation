@@ -21,6 +21,9 @@
     "engines": {
         "node": ">= 7.6"
     },
+    "files": [
+        "dist"
+    ],
     "devDependencies": {
         "@types/jest": "^24.0.15",
         "@types/koa-router": "^7.0.42",
