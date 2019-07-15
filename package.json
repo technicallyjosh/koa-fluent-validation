@@ -15,7 +15,7 @@
     "scripts": {
         "lint": "eslint src/**/* __tests__/**/*",
         "build": "rm -rf dist && tsc",
-        "test": "jest --coverage",
+        "test": "npm run lint && npm run build && jest --coverage",
         "watch": "concurrently \"tsc --watch\" \"jest --watch --coverage\""
     },
     "files": [
