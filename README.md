@@ -24,12 +24,12 @@ $ npm i koa-fluent-validation
 ```js
 const Koa = require('koa');
 const bodyparser = require('koa-bodyparser');
-const { validator, v, f } = require('koa-fluent-validation');
+const { validation, v, f } = require('koa-fluent-validation');
 
 const app = new Koa();
 
 app.use(bodyparser());
-app.use(validator());
+app.use(validation());
 
 app.use(async (ctx, next) => {
     try {
