@@ -98,7 +98,7 @@ export class ValidatorBuilder implements Validators {
         return this;
     }
 
-    public validate(value: any, label: string = 'Value'): string | undefined {
+    public validate(value: any, label = 'Value'): string | undefined {
         if (this.v === undefined) {
             throw new Error('No validators specified!');
         }
@@ -175,7 +175,7 @@ export class ValidatorBuilder implements Validators {
         );
     }
 
-    public number(strict: boolean = false): Validators {
+    public number(strict = false): Validators {
         return this.addValidator(
             ({ value }: ValidatorContext, strict: boolean) => {
                 if (!exists(value)) {
@@ -194,7 +194,7 @@ export class ValidatorBuilder implements Validators {
     }
 
     public float(
-        strict: boolean = false,
+        strict = false,
         options?: ValidatorJS.IsFloatOptions,
     ): Validators {
         return this.addValidator(
@@ -231,7 +231,7 @@ export class ValidatorBuilder implements Validators {
         );
     }
 
-    public decimal(strict: boolean = false): Validators {
+    public decimal(strict = false): Validators {
         return this.addValidator(
             ({ value }: ValidatorContext, strict: boolean) => {
                 if (!exists(value)) {
@@ -249,10 +249,7 @@ export class ValidatorBuilder implements Validators {
         );
     }
 
-    public int(
-        strict: boolean = false,
-        options?: ValidatorJS.IsIntOptions,
-    ): Validators {
+    public int(strict = false, options?: ValidatorJS.IsIntOptions): Validators {
         return this.addValidator(
             (
                 { value }: ValidatorContext,
@@ -275,7 +272,7 @@ export class ValidatorBuilder implements Validators {
         );
     }
 
-    public length(min: number = 1, max?: number): Validators {
+    public length(min = 1, max?: number): Validators {
         return this.addValidator(
             ({ value }: ValidatorContext, min: number, max?: number) =>
                 !exists(value)
@@ -344,7 +341,7 @@ export class ValidatorBuilder implements Validators {
         );
     }
 
-    public min(num: number, strict: boolean = false): Validators {
+    public min(num: number, strict = false): Validators {
         if (typeof num !== 'number') {
             throw new Error(`${num} is an invalid number.`);
         }
@@ -367,7 +364,7 @@ export class ValidatorBuilder implements Validators {
         );
     }
 
-    public max(num: number, strict: boolean = false): Validators {
+    public max(num: number, strict = false): Validators {
         if (typeof num !== 'number') {
             throw new Error(`${num} is an invalid number.`);
         }
@@ -438,7 +435,7 @@ export const validatorBuilder = (): Validators => new ValidatorBuilder();
 export function addCustom(
     name: string,
     fn: ValidatorFn,
-    errorMessage: string = 'Invalid',
+    errorMessage = 'Invalid',
 ) {
     ValidatorBuilder.defineCustom(name, fn, errorMessage);
 }
