@@ -1,14 +1,14 @@
 import Koa from 'koa';
 import { Validators, ValidatorBuilder } from './validator-builder';
-import { Filter, FilterBuilder } from './filter-builder';
-import set = require('lodash.set');
+import { Filters, FilterBuilder } from './filter-builder';
+import set from 'lodash.set';
 
 export interface ValidatorObject {
     [key: string]: Validators | ValidatorObject;
 }
 
 export interface FilterObject {
-    [key: string]: Filter | FilterObject;
+    [key: string]: Filters | FilterObject;
 }
 
 export interface Hooks {
