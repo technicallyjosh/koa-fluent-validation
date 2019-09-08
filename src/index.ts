@@ -1,13 +1,11 @@
 import { ValidatorObject, Hooks } from './middleware';
 
-declare module 'koa' {
-    interface Context {
-        validationErrors: { [key: string]: string };
-        validateBody(setup: ValidatorObject, hooks?: Hooks): void;
-        validateParams(setup: ValidatorObject, hooks?: Hooks): void;
-        validateQuery(setup: ValidatorObject, hooks?: Hooks): void;
-        validateHeaders(setup: ValidatorObject, hooks?: Hooks): void;
-    }
+export interface Context {
+    validationErrors: Record<string, string>;
+    validateBody(setup: ValidatorObject, hooks?: Hooks): void;
+    validateParams(setup: ValidatorObject, hooks?: Hooks): void;
+    validateQuery(setup: ValidatorObject, hooks?: Hooks): void;
+    validateHeaders(setup: ValidatorObject, hooks?: Hooks): void;
 }
 
 export { middleware as validation } from './middleware';
