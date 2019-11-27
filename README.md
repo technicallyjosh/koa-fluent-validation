@@ -14,8 +14,8 @@ $ npm i koa-fluent-validation
 
 ## Requirements
 
--   NodeJS >= 7.6
--   **For validating parameters, [koa-router](https://github.com/alexmingoia/koa-router)'s implementation is used with `ctx.params`.**
+- NodeJS >= 7.6
+- **For validating parameters, [koa-router](https://github.com/alexmingoia/koa-router)'s implementation is used with `ctx.params`.**
 
 ## Usage
 
@@ -32,41 +32,41 @@ app.use(bodyparser());
 app.use(validation());
 
 app.use(async (ctx, next) => {
-    try {
-        await next();
-    } catch (e) {
-        if (e.status === 422) {
-            ctx.body = ctx.validationErrors;
-            return;
-        }
-
-        // ... some other handling here etc
+  try {
+    await next();
+  } catch (e) {
+    if (e.status === 422) {
+      ctx.body = ctx.validationErrors;
+      return;
     }
+
+    // ... some other handling here etc
+  }
 });
 
 // simple post route
 app.use(async (ctx, next) => {
-    if (ctx.method !== 'POST') {
-        ctx.throw(404);
-        return;
-    }
+  if (ctx.method !== 'POST') {
+    ctx.throw(404);
+    return;
+  }
 
-    ctx.validateBody(
-        {
-            firstName: v()
-                .required()
-                .string(),
-            lastName: v()
-                .required()
-                .string(),
-        },
-        {
-            firstName: f().trim(),
-            lastName: f().trim(),
-        },
-    );
+  ctx.validateBody(
+    {
+      firstName: v()
+        .required()
+        .string(),
+      lastName: v()
+        .required()
+        .string(),
+    },
+    {
+      firstName: f().trim(),
+      lastName: f().trim(),
+    },
+  );
 
-    // your code here
+  // your code here
 });
 
 app.listen(8080);
@@ -78,4 +78,4 @@ app.listen(8080);
 
 ## TODO
 
--   [] Filter Tests
+- [] Filter Tests

@@ -1,17 +1,17 @@
 {
-    "compilerOptions": {
-        "target": "es2017",
-        "module": "commonjs",
-        "outDir": "dist",
-        "sourceMap": true,
-        "removeComments": true,
-        "strict": true,
-        "noImplicitAny": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "esModuleInterop": true,
-        "preserveWatchOutput": true,
-        "declaration": true
-    },
-    "include": ["src"]
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "outDir": "dist",
+    "sourceMap": true,
+    "removeComments": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "esModuleInterop": true,
+    "preserveWatchOutput": true,
+    "declaration": true
+  },
+  "include": ["src"]
 }
