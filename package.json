@@ -47,6 +47,6 @@
     "dependencies": {
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
-        "validator": "^12.1.0"
+        "validator": "^13.7.0"
     }
 }
